@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Customize Food</title>
+<link rel="stylesheet" href="../css/custom.css">
+</head>
+<body onload="init()">
+
+<div class="container">
+    <h2 id="foodName"></h2>
+    <p id="foodPrice"></p>
+
+    <!-- Spicy Level -->
+    <div class="section">
+        <h3>Spicy Level</h3>
+        <label><input type="radio" name="spicy" value="No Spicy"> No Spicy</label><br>
+        <label><input type="radio" name="spicy" value="Mild"> Mild</label><br>
+        <label><input type="radio" name="spicy" value="Medium"> Medium</label><br>
+        <label><input type="radio" name="spicy" value="Hot"> Hot</label>
+    </div>
+
+    <!-- Drink -->
+    <div class="section">
+        <h3>Drink</h3>
+        <label><input type="radio" name="drink" value="Hot"> Hot</label><br>
+        <label><input type="radio" name="drink" value="Cold (+RM0.50)"> Cold</label>
+    </div>
+
+    <!-- Add-ons -->
+    <div class="section">
+        <h3>Add-ons</h3>
+        <label><input type="checkbox" class="addon" data-price="2"> Extra Egg (+RM2)</label><br>
+        <label><input type="checkbox" class="addon" data-price="3"> Extra Chicken (+RM3)</label>
+    </div>
+
+    <!-- Note -->
+    <div class="section">
+        <h3>Note</h3>
+        <textarea id="note" style="width:100%"></textarea>
+    </div>
+
+    <!-- Quantity -->
+    <div class="section">
+        <h3>Quantity</h3>
+        <button onclick="minus()">-</button>
+        <span id="qty">1</span>
+        <button onclick="plus()">+</button>
+    </div>
+
+    <h3>Total: RM <span id="total">0.00</span></h3>
+    <button class="btn-save" onclick="save()">Save to Cart</button>
+</div>
+
+<script>
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let editIndex = localStorage.getItem("editIndex");
+let editItem = JSON.parse(localStorage.getItem("editItem"));
+let qty = 1;
+
+function init() {
+    if(!editItem) return;
+
+    document.getElementById("foodName").innerText = editItem.name;
+    document.getElementById("foodPrice").innerText = "RM " + editItem.price.toFixed(2);
+
+    qty = editItem.quantity;
+    document.getElementById("qty").innerText = qty;
+
+    document.getElementById("note").value = editItem.note || "";
+
+    document.querySelectorAll('input[name="spicy"]').forEach(r=>{
+        if(r.value === editItem.spicy) r.checked = true;
+    });
+
+    document.querySelectorAll('input[name="drink"]').forEach(r=>{
+        if(r.value === editItem.drink) r.checked = true;
+    });
+
+    document.querySelectorAll(".addon").forEach(a=>{
+        if(editItem.addons?.includes(a.parentElement.innerText.trim())) a.checked = true;
+    });
+
+    document.querySelectorAll('input, .addon').forEach(el => el.addEventListener('change', calculate));
+
+    calculate();
+}
+
+function plus() { qty++; document.getElementById("qty").innerText = qty; calculate(); }
+function minus() { if(qty>1) qty--; document.getElementById("qty").innerText = qty; calculate(); }
+
+function calculate() {
+    let total = editItem.price;
+
+    document.querySelectorAll(".addon:checked").forEach(a=>{
+        total += Number(a.dataset.price);
+    });
+
+    let drink = document.querySelector('input[name="drink"]:checked')?.value;
+    if(drink && drink.includes("Cold")) total += 0.5;
+
+    total = total * qty;
+    document.getElementById("total").innerText = total.toFixed(2);
+}
+
+function save() {
+    let spicy = document.querySelector('input[name="spicy"]:checked')?.value;
+    let drink = document.querySelector('input[name="drink"]:checked')?.value;
+
+    let addons = [];
+    document.querySelectorAll(".addon:checked").forEach(a=>{
+        addons.push(a.parentElement.innerText.trim());
+    });
+
+    let updatedItem = {
+        id: editItem.id,
+        menu_id: editItem.menu_id,
+        name: editItem.name,
+        price: editItem.price,
+        quantity: qty,
+        spicy,
+        drink,
+        addons,
+        note: document.getElementById("note").value,
+        subtotal: parseFloat(document.getElementById("total").innerText)
+    };
+
+    cart[editIndex] = updatedItem;
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    localStorage.removeItem("editItem");
+    localStorage.removeItem("editIndex");
+
+    alert("Updated successfully!");
+    window.location.href = "cart.html";
+}
+
+</script>
+</body>
+</html>
