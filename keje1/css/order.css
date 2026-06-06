@@ -1,0 +1,206 @@
+/* ==========================================================================
+   UTEM CAMPUS FOOD ORDERING SYSTEM - STYLE UTAMA (login.css)
+   ========================================================================== */
+
+body {
+    background-color: #eef2f7;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* 1. NAVBAR LEBAR PENUH SEBIJI MACAM GAMBAR OPERATOR */
+.navbar {
+    background-color: #1a4380; /* Biru pekat UTeM */
+    padding: 20px 0px;        
+    text-align: center;
+    width: 100%;              
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar h2 {
+    color: white;
+    margin: 0 0 15px 0;
+    font-size: 24px;
+}
+
+/* Susunan Butang Menu Memanjang Rapat Tepi */
+.nav-links {
+    display: flex;
+    width: 100%;              
+    padding: 0 10px;          
+    box-sizing: border-box;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 12px 0px;        
+    flex: 1;                  /* Bahagi rata lebar skrin */
+    margin: 0 5px;            
+    font-size: 14px;
+    border-radius: 6px;       
+    transition: 0.2s ease;
+    text-align: center;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    font-weight: bold;
+}
+
+/* 2. CONTAINER KANDUNGAN */
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* Kad Banner / Welcome Card */
+.welcome-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.welcome-card h1 {
+    color: #1a4380;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.welcome-card p {
+    color: #666;
+    margin-bottom: 0;
+}
+
+/* 3. GRID KAD SIMPLE (Untuk Menu & Orders) */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Gaya Kad Putih */
+.menu-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.menu-card h3 {
+    color: #1a4380;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.order-items {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.order-price {
+    font-weight: bold;
+    font-size: 16px;
+    color: #1a4380;
+    margin-bottom: 15px;
+}
+
+/* 4. GAYA BUTANG */
+
+/* Butang Utama Biru Muda (Macam Butang View Orders Asal) */
+.add-to-cart-btn {
+    background-color: #8cb4e1;
+    color: #1a4380;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%; /* Ikut lebar kad */
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #76a2d4;
+}
+
+/* Butang Status (Static / Tidak Boleh Klik) */
+.status-btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    width: 100%; 
+    font-size: 14px;
+    cursor: default;
+}
+
+.status-btn.yellow {
+    background-color: #f1c40f; /* Kuning untuk Preparing */
+    color: #5d4037;
+}
+
+.status-btn.green {
+    background-color: #2ecc71; /* Hijau untuk Ready */
+    color: white;
+}
+
+/* 5. STYLING KHAS UNTUK TIMELINE (order-status.html) */
+.status-step {
+    padding: 12px;
+    margin: 10px 0;
+    border-left: 4px solid #ccc;
+    padding-left: 15px;
+    font-size: 15px;
+}
+.status-step.done {
+    border-left-color: #2ecc71;
+    color: #2ecc71;
+}
+.status-step.active {
+    border-left-color: #1a4380;
+    color: #1a4380;
+    font-weight: bold;
+    background-color: #e1ecf4;
+}
+.status-step.next {
+    border-left-color: #ddd;
+    color: #999;
+}
+    #foodready {
+        position: fixed;
+        right: 20px;
+        top: 20px;
+        max-width: 320px;
+        background: #fff06e;
+        color: #fff;
+        padding: 14px 18px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+        font-family: Arial, sans-serif;
+        display: none;
+        z-index: 9999;
+    }
+    #foodready.show {
+        display: block;
+        animation: slide-in 0.35s ease-out;
+    }
+    @keyframes slide-in {
+        from { transform: translateX(120%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    

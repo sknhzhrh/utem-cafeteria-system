@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTeM Cafeteria - History</title>
+    <link rel="stylesheet" type="text/css" href="../keje/order.css">
+</head>
+<body onload="checkLogin()">
+
+<div class="navbar">
+    <div class="logo">
+        <h2>UTeM Campus Food Ordering System</h2>
+    </div>
+    <div class="nav-links">
+        <a href="dashboard.html">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="menu.html">Menu</a>
+        <a href="#">Search</a>
+        <a href="orders.html" class="active">Orders</a>
+        <a href="#" onclick="logoutCustomer()">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="welcome-card">
+        <h1>Your Past Orders</h1>
+        <p>History of all completed and picked-up meals.</p>
+    </div>
+
+    <div style="margin-top: 15px; text-align: center;">
+        <a href="orders.html" style="text-decoration: none;">
+            <button class="add-to-cart-btn" style="width: auto; padding: 10px 30px;">← Back to Orders</button>
+        </a>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-card">
+            <h3>Order #UTM-910</h3>
+            <p class="order-items">Nasi Ayam Penyet x1<br>Sirap Bandung x1</p>
+            <p class="order-price">Total Paid: RM 8.50</p>
+            <button class="status-btn green" style="background-color: #2ecc71; color: white;">✓ Completed on 04/06/2026</button>
+        </div>
+
+        <div class="menu-card">
+            <h3>Order #UTM-854</h3>
+            <p class="order-items">Burger Ramly Daging Double x1<br>Milo Ais x1</p>
+            <p class="order-price">Total Paid: RM 9.50</p>
+            <button class="status-btn green" style="background-color: #2ecc71; color: white;">✓ Completed on 01/06/2026</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkLogin() { console.log("Logged in"); }
+    function logoutCustomer() { alert("Logout..."); }
+</script>
+</body>
+</html>
