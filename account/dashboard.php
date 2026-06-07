@@ -9,21 +9,7 @@
 
 <body onload="checkLogin()">
 
-<div class="navbar">
-    <div class="logo">
-        <h2>UTeM Campus Food Ordering System</h2>
-    </div>
-
-    <div class="nav-links">
-        <a href="dashboard.html">Home</a>
-        <a href="profile.html">Profile</a>
-        <a href="#">Menu</a>
-        <a href="#">Search</a>
-        <a href="#">Cart</a>
-        <a href="#" onclick="logoutCustomer()">Logout</a>
-    </div>
-
-</div>
+<?php include("../includes/head.php"); ?>
 
 <div class="dashboard">
 
@@ -48,17 +34,16 @@
 
             <p>View your customer details</p>
 
-            <br>
-            <br>
+            <br><br>
 
-            <a href="profile.html" class="btn">View Profile</a>
+            <a href="profile.php" class="btn">View Profile</a>
 
         </div>
 
         <div class="card">
 
             <img src="../images/menu.png" class="card-image">
-            
+
             <h3>Menu</h3>
 
             <p>Customers can browse available food and drinks</p>
@@ -94,13 +79,13 @@ function checkLogin()
     if(localStorage.getItem("loginStatus") !== "true")
     {
         alert("Please Login First");
-
-        window.location.href = "login.html";
+        window.location.href = "login.php";
     }
 
     let name = localStorage.getItem("customerName");
 
-    document.getElementById("welcomeName").innerHTML ="Welcome, " + name + "!";
+    document.getElementById("welcomeName").innerHTML =
+        "Welcome, " + name + "!";
 }
 
 function logoutCustomer()
@@ -109,7 +94,7 @@ function logoutCustomer()
 
     alert("Logout Successful");
 
-    window.location.href = "login.html";
+    window.location.href = "login.php";
 }
 
 </script>

@@ -48,7 +48,7 @@
 
     </form>
 
-    <p class="link-text">Already have an account? <a href="login.html">Login here</a></p>
+    <p class="link-text">Already have an account? <a href="login.php">Login here</a></p>
 
 </div>
 
@@ -74,7 +74,7 @@ function registerCustomer()
 
     alert("Registration Successful");
 
-    window.location.href = "login.html";
+    window.location.href = "login.php";
 }
 
 </script>

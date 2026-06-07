@@ -38,7 +38,7 @@
 
     </form>
 
-    <p class="link-text">New customer? <a href="register.html">Register here</a></p>
+    <p class="link-text">New customer? <a href="register.php">Register here</a></p>
 
 </div>
 
@@ -60,7 +60,7 @@ function loginCustomer()
 
         alert("Login Successful");
 
-        window.location.href = "dashboard.html";
+        window.location.href = "dashboard.php";
     }
 
     else

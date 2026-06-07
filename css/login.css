@@ -200,23 +200,151 @@ button:hover,
 /*FOR DIFFERENT DISPLAY SIZE*/
 
 @media (max-width: 768px) {
+
     .logo h2 {
-        font-size: 24px;
+        font-size: 22px;
     }
 
     .nav-links {
-        gap: 8px;
+        flex-direction: row;
+        gap: 5px;
+        padding: 8px;
     }
 
     .nav-links a {
-        font-size: 14px;
+        font-size: 11px;
+        padding: 8px 4px;
     }
 
-    .container,
-    .welcome-box,
-    .card,
-    .profile-box {
+    .container {
+        width: 92%;
+        margin: 35px auto;
         padding: 25px;
     }
 
+    .dashboard {
+        width: 92%;
+        margin: 30px auto;
+    }
+
+    .card-row {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-box,
+    .card,
+    .profile-box,
+    .report-box {
+        padding: 25px;
+    }
+
+    .report-box {
+        overflow-x: auto;
+    }
+
+    .report-table {
+        min-width: 600px;
+        font-size: 12px;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 8px;
+    }
+
+    .high-demand,
+    .normal-demand {
+        display: inline-block;
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+}
+
+/* OPERATOR REPORT */
+
+.report-box
+{
+    background: white;
+    padding: 35px;
+    margin-top: 30px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.report-box h2
+{
+    text-align: center;
+    color: #274472;
+    margin-bottom: 20px;
+}
+
+.report-desc
+{
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.report-table
+{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-table th
+{
+    background: #D6E6F7;
+    color: #163B73;
+}
+
+.report-table th,
+.report-table td
+{
+    border: 1px solid #ddd;
+    padding: 14px;
+    text-align: center;
+}
+
+.graph
+{
+    margin-top: 20px;
+}
+
+.graph-row
+{
+    margin-bottom: 20px;
+}
+
+.graph-row span
+{
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.graph-bar
+{
+    background: #A7C7E7;
+    color: #163B73;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.high-demand
+{
+    background: #FFE5B4;
+    color: #B45F06;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.normal-demand
+{
+    background: #D6E6F7;
+    color: #163B73;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: bold;
 }

@@ -9,20 +9,7 @@
 
 <body onload="displayProfile()">
 
-<div class="navbar">
-    <div class="logo">
-        <h2>UTeM Campus Food Ordering System</h2>
-    </div>
-
-    <div class="nav-links">
-        <a href="dashboard.html">Home</a>
-        <a href="profile.html">Profile</a>
-        <a href="#">Menu</a>
-        <a href="#">Search</a>
-        <a href="#">Cart</a>
-        <a href="#" onclick="logoutCustomer()">Logout</a>
-    </div>
-</div>
+<?php include("../includes/head.php"); ?>
 
 
 <div class="profile-box">
@@ -48,7 +35,7 @@
         <p id="profileEmail"></p>
     </div>
 
-    <a href="dashboard.html" class="btn">Back to Home</a>
+    <a href="dashboard.php" class="btn">Back to Home</a>
 
 </div>
 
@@ -72,7 +59,7 @@ function logoutCustomer()
 
     alert("Logout Successful");
 
-    window.location.href = "login.html";
+    window.location.href = "login.php";
 }
 
 </script>
