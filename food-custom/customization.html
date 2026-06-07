@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Customize Food</title>
+<link rel="stylesheet" type="text/css" href="../css/custom.css">
+
+<style>
+body{
+    font-family:Arial;
+    background:#f5f5f5;
+    padding:20px;
+}
+
+.box{
+    max-width:500px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+}
+
+h2{color:#163B73;}
+
+.section{margin-top:15px;}
+
+button{
+    padding:10px;
+    width:100%;
+    margin-top:15px;
+    background:#163B73;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.qty{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.qty button{
+    width:40px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2 id="name"></h2>
+<p id="price"></p>
+
+<!-- SPICY -->
+<div class="section">
+<h3>Spicy Level</h3>
+<label><input type="radio" name="spicy" value="No Spicy" checked> No Spicy</label><br>
+<label><input type="radio" name="spicy" value="Mild"> Mild</label><br>
+<label><input type="radio" name="spicy" value="Medium"> Medium</label><br>
+<label><input type="radio" name="spicy" value="Hot"> Hot</label>
+</div>
+
+<!-- DRINK -->
+<div class="section">
+<h3>Drink</h3>
+<label><input type="radio" name="drink" value="Hot" checked> Hot</label><br>
+<label><input type="radio" name="drink" value="Cold (+0.50)"> Cold (+RM0.50)</label>
+</div>
+
+<!-- ADD ONS -->
+<div class="section">
+<h3>Add-ons</h3>
+<label><input type="checkbox" value="Egg (+2)"> Egg</label><br>
+<label><input type="checkbox" value="Chicken (+3)"> Chicken</label>
+</div>
+
+<!-- NOTE -->
+<div class="section">
+<h3>Note</h3>
+<textarea id="note" placeholder="Any request..."></textarea>
+</div>
+
+<!-- QTY -->
+<div class="section qty">
+<button onclick="minus()">-</button>
+<span id="qty">1</span>
+<button onclick="plus()">+</button>
+</div>
+
+<!-- ADD -->
+<button onclick="addToCart()">Add To Cart</button>
+
+</div>
+
+<script>
+
+let qty = 1;
+
+// SAME MENU DATA (must match menu page)
+const menuItems = [
+ {menu_id:1,name:"Nasi Lemak",price:4.5,image:"../images/nasi.jpg"},
+ {menu_id:2,name:"Nasi Goreng",price:5,image:"../images/nasi.jpg"},
+ {menu_id:9,name:"Teh Tarik",price:2.5,image:"../images/drink.jpg"}
+];
+
+let id = localStorage.getItem("selectedFoodId");
+let food = menuItems.find(m => m.menu_id == id);
+
+// show food
+document.getElementById("name").innerText = food.name;
+document.getElementById("price").innerText = "RM " + food.price;
+
+// qty
+function plus(){
+qty++;
+document.getElementById("qty").innerText = qty;
+}
+
+function minus(){
+if(qty>1) qty--;
+document.getElementById("qty").innerText = qty;
+}
+
+// ADD TO CART
+function addToCart(){
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+let spicy = document.querySelector('input[name="spicy"]:checked').value;
+let drink = document.querySelector('input[name="drink"]:checked').value;
+
+let addons = [];
+document.querySelectorAll("input[type=checkbox]:checked")
+.forEach(a => addons.push(a.value));
+
+cart.push({
+menu_id: food.menu_id,
+name: food.name,
+price: food.price,
+image: food.image,
+quantity: qty,
+spicy: spicy,
+drink: drink,
+addons: addons,
+note: document.getElementById("note").value
+});
+
+localStorage.setItem("cart", JSON.stringify(cart));
+
+alert("Added to cart!");
+window.location.href = "menu.html";
+}
+
+</script>
+
+</body>
+</html>
