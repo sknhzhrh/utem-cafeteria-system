@@ -1,0 +1,234 @@
+/* ── MANAGE MENU PAGE STYLES ── */
+
+/* Alert message */
+.alert {
+    width: 90%;
+    max-width: 1000px;
+    margin: 15px auto 0;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #276749;
+    border: 1px solid #b2dfcc;
+}
+
+/* Add / Edit form card */
+.form-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    padding: 30px 35px;
+    margin-top: 25px;
+}
+
+.form-card h2 {
+    color: #274472;
+    margin-bottom: 20px;
+}
+
+/* Three inputs side by side */
+.form-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+    width: 100%;
+}
+
+/* Form buttons */
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.form-actions button {
+    width: auto;
+    padding: 12px 28px;
+    font-size: 15px;
+    border-radius: 12px;
+    background: #A7C7E7;
+    color: #274472;
+}
+
+.form-actions button:hover {
+    background: #163B73;
+    color: white;
+}
+
+.btn-cancel {
+    color: #888;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn-cancel:hover {
+    color: #444;
+}
+
+/* Report box (reused from report.php style) */
+.report-box {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    padding: 30px 35px;
+    margin-top: 25px;
+}
+
+.report-box h2 {
+    color: #274472;
+    margin-bottom: 20px;
+}
+
+/* Table */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.report-table th {
+    background: #163B73;
+    color: white;
+    padding: 13px 15px;
+    text-align: left;
+}
+
+.report-table th:first-child { border-radius: 10px 0 0 10px; }
+.report-table th:last-child  { border-radius: 0 10px 10px 0; }
+
+.report-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.report-table tr:last-child td {
+    border-bottom: none;
+}
+
+.report-table tr:hover td {
+    background: #f5f8fc;
+}
+
+/* Category badge */
+.category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.category-rice     { background: #fef3c7; color: #92400e; }
+.category-noodles  { background: #ede9fe; color: #5b21b6; }
+.category-snacks   { background: #fce7f3; color: #9d174d; }
+.category-drinks   { background: #d1fae5; color: #065f46; }
+.category-desserts { background: #fee2e2; color: #991b1b; }
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-edit {
+    display: inline-block;
+    padding: 7px 16px;
+    background: #A7C7E7;
+    color: #274472;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-edit:hover {
+    background: #163B73;
+    color: white;
+}
+
+.btn-delete {
+    padding: 7px 16px;
+    background: #fde8e8;
+    color: #c0392b;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: auto;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
+    color: white;
+}
+
+/* Delete form inline */
+.action-buttons form {
+    margin: 0;
+    padding: 0;
+}
+
+/* No items */
+.no-items {
+    text-align: center;
+    color: #999;
+    padding: 30px 0;
+    font-size: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-card,
+    .report-box {
+        padding: 20px;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 10px 10px;
+        font-size: 13px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
