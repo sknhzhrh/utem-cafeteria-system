@@ -10,7 +10,7 @@
         <a href="#">Menu</a>
         <a href="#">Search</a>
         <a href="#">Cart</a>
-        <a href="#" onclick="logoutCustomer()">Logout</a>
+        <a href="logout.php" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
     </div>
 
 </div>

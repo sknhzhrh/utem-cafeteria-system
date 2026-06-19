@@ -1,13 +1,23 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['customer_id']))
+{
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTeM Cafeteria</title>
-    <link rel="stylesheet" type="text/css" href="../css/login.css">
+    <title>Customer Home</title>
+    <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
 </head>
 
-<body onload="checkLogin()">
+<body>
 
 <?php include("../includes/head.php"); ?>
 
@@ -15,12 +25,7 @@
 
     <div class="welcome-box">
 
-        <h1 id="welcomeName"></h1>
-
-        <p>
-            You are logged in.
-            You can now browse menu and place orders.
-        </p>
+        <h1>Welcome, <?php echo $_SESSION['customer_name']; ?>!</h1>
 
     </div>
 
@@ -71,33 +76,6 @@
     </div>
 
 </div>
-
-<script>
-
-function checkLogin()
-{
-    if(localStorage.getItem("loginStatus") !== "true")
-    {
-        alert("Please Login First");
-        window.location.href = "login.php";
-    }
-
-    let name = localStorage.getItem("customerName");
-
-    document.getElementById("welcomeName").innerHTML =
-        "Welcome, " + name + "!";
-}
-
-function logoutCustomer()
-{
-    localStorage.setItem("loginStatus", "false");
-
-    alert("Logout Successful");
-
-    window.location.href = "login.php";
-}
-
-</script>
 
 </body>
 </html>

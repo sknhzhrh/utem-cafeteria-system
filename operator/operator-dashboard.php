@@ -1,35 +1,33 @@
+<?php
+
+session_start();
+
+if(!isset($_SESSION['operator_id']))
+{
+    header("Location: operator-login.php");
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTeM Cafeteria Operator</title>
-    <link rel="stylesheet" type="text/css" href="../css/login.css">
+    <title>Operator Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
 </head>
 
 <body>
 
-<div class="navbar">
-
-    <div class="logo">
-        <h2>UTeM Campus Food Ordering System</h2>
-    </div>
-
-    <div class="nav-links">
-        <a href="operator-dashboard.php">Dashboard</a>
-        <a href="#">Orders</a>
-        <a href="#">Menu</a>
-        <a href="report.php">Reports</a>
-        <a href="../operator/operator-login.php">Logout</a>
-    </div>
-
-</div>
+<?php include("../includes/operator-head.php"); ?>
 
 <div class="dashboard">
 
     <div class="welcome-box">
 
-        <h1>Welcome, Cafeteria Operator!</h1>
+        <h1>Welcome, <?php echo $_SESSION['operator_name']; ?>!</h1>
 
     </div>
 
@@ -79,7 +77,7 @@
 
             <br>
 
-            <a href="report.php" class="btn">View Reports</a>
+            <a href="operator-report.php" class="btn">View Reports</a>
 
         </div>
 
