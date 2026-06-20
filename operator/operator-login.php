@@ -3,26 +3,32 @@
 session_start();
 include("../connect.php");
 
-if(isset($_POST['login']))
+if (isset($_POST['login']))
 {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
     $sql = "SELECT * FROM cafeteria_operator
-            WHERE username='$username'
-            AND password='$password'";
+            WHERE username='$username'";
 
-    $result = mysqli_query($conn,$sql);
+    $result = mysqli_query($conn, $sql);
 
-    if(mysqli_num_rows($result) == 1)
+    if (mysqli_num_rows($result) == 1)
     {
         $row = mysqli_fetch_assoc($result);
 
-        $_SESSION['operator_id'] = $row['operator_id'];
-        $_SESSION['operator_name'] = $row['name'];
+        if (password_verify($password, $row['password']))
+        {
+            $_SESSION['operator_id'] = $row['operator_id'];
+            $_SESSION['operator_name'] = $row['name'];
 
-        header("Location: operator-dashboard.php");
-        exit();
+            header("Location: operator-dashboard.php");
+            exit();
+        }
+        else
+        {
+            echo "<script>alert('Invalid Username or Password');</script>";
+        }
     }
     else
     {
@@ -71,7 +77,10 @@ if(isset($_POST['login']))
 
         </form>
 
-        <p class="link-text">Customer login? <a href="../account/login.php">Click here</a></p>
+        <p class="link-text">
+            Customer login?
+            <a href="../account/login.php">Click here</a>
+        </p>
 
     </div>
 

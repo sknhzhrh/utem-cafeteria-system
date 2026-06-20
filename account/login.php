@@ -3,26 +3,32 @@
 session_start();
 include("../connect.php");
 
-if(isset($_POST['login']))
+if (isset($_POST['login']))
 {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
     $sql = "SELECT * FROM customer
-            WHERE email='$email'
-            AND password='$password'";
+            WHERE email='$email'";
 
-    $result = mysqli_query($conn,$sql);
+    $result = mysqli_query($conn, $sql);
 
-    if(mysqli_num_rows($result) == 1)
+    if (mysqli_num_rows($result) == 1)
     {
         $row = mysqli_fetch_assoc($result);
 
-        $_SESSION['customer_id'] = $row['customer_id'];
-        $_SESSION['customer_name'] = $row['name'];
+        if (password_verify($password, $row['password']))
+        {
+            $_SESSION['customer_id'] = $row['customer_id'];
+            $_SESSION['customer_name'] = $row['name'];
 
-        header("Location: dashboard.php");
-        exit();
+            header("Location: dashboard.php");
+            exit();
+        }
+        else
+        {
+            echo "<script>alert('Invalid Email or Password');</script>";
+        }
     }
     else
     {
@@ -40,6 +46,7 @@ if(isset($_POST['login']))
     <title>Customer Login</title>
     <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
 </head>
+
 <body>
 
 <div class="navbar">
@@ -72,9 +79,12 @@ if(isset($_POST['login']))
 
     </form>
 
-    <p class="link-text">New customer? <a href="register.php">Register here</a></p>
+    <p class="link-text">
+        New customer?
+        <a href="register.php">Register here</a>
+    </p>
 
 </div>
-    
+
 </body>
 </html>
