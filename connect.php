@@ -1,10 +1,10 @@
 <?php
 
-$conn = mysqli_connect("localhost","root","","cafeteria_db");
+$conn = mysqli_connect("localhost", "root", "", "cafeteria_db");
 
-if(!$conn)
+if (!$conn)
 {
-    die("Connection Failed : " . mysqli_connect_error());
+    die("Connection Failed: " . mysqli_connect_error());
 }
 
 ?>

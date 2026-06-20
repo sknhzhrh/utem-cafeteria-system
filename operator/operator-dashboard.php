@@ -1,9 +1,8 @@
-<<<<<<< HEAD
 <?php
 
 session_start();
 
-if(!isset($_SESSION['operator_id']))
+if (!isset($_SESSION['operator_id']))
 {
     header("Location: operator-login.php");
     exit();
@@ -16,10 +15,9 @@ if(!isset($_SESSION['operator_id']))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operator Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
+    <title>Operator Dashboard - UTeM Cafeteria</title>
+    <link rel="stylesheet" href="../css/sakinah.css">
 </head>
-
 <body>
 
 <?php include("../includes/operator-head.php"); ?>
@@ -27,154 +25,34 @@ if(!isset($_SESSION['operator_id']))
 <div class="dashboard">
 
     <div class="welcome-box">
-
         <h1>Welcome, <?php echo $_SESSION['operator_name']; ?>!</h1>
-
+        <p>Manage cafeteria orders, menu items and sales reports.</p>
     </div>
 
     <div class="card-row">
 
         <div class="card">
-
             <img src="../images/order.png" class="card-image">
-
             <h3>Manage Orders</h3>
-
-            <p>
-                View and update customer orders.
-            </p>
-
+            <p>View and update customer orders.</p>
             <br>
-
-            <a href="#" class="btn">View Orders</a>
-
+            <a href="order.php" class="btn">View Orders</a>
         </div>
 
         <div class="card">
-
             <img src="../images/menu.png" class="card-image">
-
             <h3>Manage Menu</h3>
-
-            <p>
-                Add, edit and remove menu items.
-            </p>
-
+            <p>Add, edit and remove menu items.</p>
             <br>
-
-            <a href="#" class="btn">Manage Menu</a>
-
-        </div>
-
-        <div class="card">
-
-            <img src="../images/report.png" class="card-image">
-
-            <h3>Sales Reports</h3>
-
-            <p>
-                View daily cafeteria sales reports.
-            </p>
-
-            <br>
-
-            <a href="operator-report.php" class="btn">View Reports</a>
-
-        </div>
-
-    </div>
-
-</div>
-
-</body>
-=======
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTeM Cafeteria Operator</title>
-    <link rel="stylesheet" type="text/css" href="../css/login.css">
-</head>
-
-<body>
-
-<div class="navbar">
-
-    <div class="logo">
-        <h2>UTeM Campus Food Ordering System</h2>
-    </div>
-
-    <div class="nav-links">
-        <a href="operator-dashboard.php">Dashboard</a>
-        <a href="orders.php">Orders</a>
-        <a href="manage-menu.php">Menu</a>
-        <a href="report.php">Reports</a>
-        <a href="../account + menu/login.php">Logout</a>
-    </div>
-
-</div>
-
-<div class="dashboard">
-
-    <div class="welcome-box">
-
-        <h1>Welcome, Cafeteria Operator!</h1>
-
-        <p>
-            Manage cafeteria orders, menu items and sales reports.
-        </p>
-
-    </div>
-
-    <div class="card-row">
-
-        <div class="card">
-
-            <img src="../images/order.png" class="card-image">
-
-            <h3>Manage Orders</h3>
-
-            <p>
-                View and update customer orders.
-            </p>
-
-            <br>
-
-            <a href="orders.php" class="btn">View Orders</a>
-
-        </div>
-
-        <div class="card">
-
-            <img src="../images/menu.png" class="card-image">
-
-            <h3>Manage Menu</h3>
-
-            <p>
-                Add, edit and remove menu items.
-            </p>
-
-            <br>
-
             <a href="manage-menu.php" class="btn">Manage Menu</a>
-
         </div>
 
         <div class="card">
-
             <img src="../images/report.png" class="card-image">
-
             <h3>Sales Reports</h3>
-
-            <p>
-                View daily cafeteria sales reports.
-            </p>
-
+            <p>View daily cafeteria sales reports.</p>
             <br>
-
-            <a href="report.php" class="btn">View Reports</a>
-
+            <a href="operator-report.php" class="btn">View Reports</a>
         </div>
 
     </div>
@@ -182,5 +60,4 @@ if(!isset($_SESSION['operator_id']))
 </div>
 
 </body>
->>>>>>> origin/menu-browsing
 </html>

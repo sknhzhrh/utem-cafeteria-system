@@ -2,54 +2,50 @@
 
 include("../connect.php");
 
-if(isset($_POST['register']))
+if (isset($_POST['register']))
 {
-    $name = $_POST['name'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
+    $name     = $_POST['name'];
+    $phone    = $_POST['phone'];
+    $email    = $_POST['email'];
     $password = $_POST['password'];
 
-    $sql = "INSERT INTO customer(name, phone, email, password)
-            VALUES('$name','$phone','$email','$password')";
+    $sql = "INSERT INTO customer (name, phone, email, password)
+            VALUES ('$name', '$phone', '$email', '$password')";
 
-    if(mysqli_query($conn,$sql))
+    if (mysqli_query($conn, $sql))
     {
         echo "<script>
                 alert('Registration Successful');
                 window.location='login.php';
-            </script>";
-    }   
+              </script>";
+    }
     else
     {
-        echo "<script>
-                alert('Registration Failed');
-            </script>";
+        echo "<script>alert('Registration Failed');</script>";
     }
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Registration</title>
-    <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
+    <title>Customer Register - UTeM Cafeteria</title>
+    <link rel="stylesheet" href="../css/sakinah.css">
 </head>
 <body>
-    
-<div class="navbar">
 
+<div class="navbar">
     <div class="logo">
         <h2>UTeM Campus Food Ordering System</h2>
     </div>
-
 </div>
 
 <div class="container">
 
     <h1>Customer Register</h1>
-
     <p class="subtitle">Create customer account before ordering</p>
 
     <form method="POST">
@@ -81,5 +77,6 @@ if(isset($_POST['register']))
     <p class="link-text">Already have an account? <a href="login.php">Login here</a></p>
 
 </div>
+
 </body>
 </html>

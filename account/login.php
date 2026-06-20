@@ -3,23 +3,22 @@
 session_start();
 include("../connect.php");
 
-if(isset($_POST['login']))
+if (isset($_POST['login']))
 {
-    $email = $_POST['email'];
+    $email    = $_POST['email'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM customer
-            WHERE email='$email'
-            AND password='$password'";
+    $sql    = "SELECT * FROM customer WHERE email='$email' AND password='$password'";
+    $result = mysqli_query($conn, $sql);
 
-    $result = mysqli_query($conn,$sql);
-
-    if(mysqli_num_rows($result) == 1)
+    if (mysqli_num_rows($result) == 1)
     {
         $row = mysqli_fetch_assoc($result);
 
-        $_SESSION['customer_id'] = $row['customer_id'];
+        $_SESSION['customer_id']   = $row['customer_id'];
         $_SESSION['customer_name'] = $row['name'];
+        $_SESSION['customer_email'] = $row['email'];
+        $_SESSION['customer_phone'] = $row['phone'];
 
         header("Location: dashboard.php");
         exit();
@@ -37,23 +36,20 @@ if(isset($_POST['login']))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Login</title>
-    <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
+    <title>Customer Login - UTeM Cafeteria</title>
+    <link rel="stylesheet" href="../css/sakinah.css">
 </head>
 <body>
 
 <div class="navbar">
-
     <div class="logo">
         <h2>UTeM Campus Food Ordering System</h2>
     </div>
-
 </div>
 
 <div class="container">
 
     <h1>Customer Login</h1>
-
     <p class="subtitle">Login to access food ordering system</p>
 
     <form method="POST">
@@ -73,8 +69,9 @@ if(isset($_POST['login']))
     </form>
 
     <p class="link-text">New customer? <a href="register.php">Register here</a></p>
+    <p class="link-text">Operator? <a href="../operator/operator-login.php">Login here</a></p>
 
 </div>
-    
+
 </body>
 </html>

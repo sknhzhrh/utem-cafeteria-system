@@ -1,18 +1,19 @@
 <?php
+
 session_start();
 include("../connect.php");
 
-if(!isset($_SESSION['customer_id']))
+if (!isset($_SESSION['customer_id']))
 {
     header("Location: login.php");
     exit();
 }
 
-$id = $_SESSION['customer_id'];
+$id     = $_SESSION['customer_id'];
+$sql    = "SELECT * FROM customer WHERE customer_id='$id'";
+$result = mysqli_query($conn, $sql);
+$row    = mysqli_fetch_assoc($result);
 
-$sql = "SELECT * FROM customer WHERE customer_id='$id'";
-$result = mysqli_query($conn,$sql);
-$row = mysqli_fetch_assoc($result);
 ?>
 
 <!DOCTYPE html>
@@ -20,20 +21,16 @@ $row = mysqli_fetch_assoc($result);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Profile</title>
-    <link rel="stylesheet" type="text/css" href="../css/sakinah.css">
+    <title>Customer Profile - UTeM Cafeteria</title>
+    <link rel="stylesheet" href="../css/sakinah.css">
 </head>
-
 <body>
 
 <?php include("../includes/head.php"); ?>
 
-
 <div class="profile-box">
 
-    <div class="profile-icon">
-        C
-    </div>
+    <div class="profile-icon">C</div>
 
     <h1>Customer Profile</h1>
 

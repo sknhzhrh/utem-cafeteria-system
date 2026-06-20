@@ -1,204 +1,201 @@
-body{
-    font-family: Arial, sans-serif;
-    background: #EEF1F4;
-    margin:0;
-    padding:0;
-    
+
+body {
+    background-color: #eef2f7;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.container{
-    display:flex;
-    align-items: stretch;
-    gap:20px;
-}
 
-/* NAVIGATION */
-.navbar{
-    margin-bottom: 20px;
-
-}
-.logo {
-    background: #163B73;
-    padding: 20px;
+.navbar {
+    background-color: #1a4380; 
+    padding: 20px 0px;        
     text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 100%;              
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.logo h2 {
-    color: #D6E6F7;
-    font-size: 32px;
+.navbar h2 {
+    color: white;
+    margin: 0 0 15px 0;
+    font-size: 24px;
 }
+
 
 .nav-links {
-    background: #163B73;
     display: flex;
-    gap: 20px;
-    padding: 8px;
-}
-
-.nav-links a {
-    flex: 1;
-    text-align: center;
-    color: white;
-    background: #204A87;
-    text-decoration: none;
-    padding: 10px 0;
-    border-radius: 15px;
-    transition: 0.3s;
-}
-
-.nav-links a:hover {
-    background: #0F2C57;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    margin-bottom: 15px; 
-}
-
-.header h2 {
-    margin: 0; 
-}
-
-.header a {
-    color: #1d4ed8;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.center-action {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-
-.card{
-    flex:1;
-    background:white;
-    min-width:0;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-
-.card table{
-    height: 85%;
-}
-
-.title{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-}
-
-.view-orders{
-     color:#1d4ed8;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:bold;
-    text-align:right;
-}
-
-h2{
-    margin-bottom:15px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    table-layout: fixed;
-}
-
-th,td{
-    padding:10px;
-    border-bottom:1px solid #ddd;
-    text-align:left;
-    font-weight: bold;
-}
-
-.status{
-    padding:5px 10px;
-    border-radius:5px;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.pending{
-    background:#ffeaa7;
-    color:#b7791f;
-}
-
-.preparing{
-    background:#d6e4ff;
-    color:#1d4ed8;
-}
-
-.completed{
-    background:#c6f6d5;
-    color:#15803d;
-}
-
-button{
-    background:#0d47a1;
-    color:white;
-    border:none;
-    padding:8px 15px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#1565c0;
-}
-
-select{
-    padding:5px;
-}
-
-#ordersTable{
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid #d5d6d7;
-    border-radius: 10px;
-    overflow: hidden;
-    table-layout:fixed;
-}
-
-#ordersStatus{
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid #d5d6d7;
-    border-radius: 10px;
-    overflow: hidden;
-    table-layout:fixed;
-}
-
-
-#ordersTable th, #ordersStatus th{
-     background-color: #e0e7ff; 
-    font-weight: bold;
-    text-align: left;
-    padding: 10px;
-}
-
-#ordersTable td, #ordersStatus td{
-    background-color: #ffffff; 
-    text-align: left;
-    padding: 10px;
-}
-
-#ordersStatus select{
-    width:100%;
+    width: 100%;              
+    padding: 0 10px;          
     box-sizing: border-box;
 }
 
-#ordersStatus button{
-    width:90px;
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 12px 0px;        
+    flex: 1;                 
+    margin: 0 5px;            
+    font-size: 14px;
+    border-radius: 6px;       
+    transition: 0.2s ease;
+    text-align: center;
 }
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    font-weight: bold;
+}
+
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+
+.welcome-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.welcome-card h1 {
+    color: #1a4380;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.welcome-card p {
+    color: #666;
+    margin-bottom: 0;
+}
+
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+
+.menu-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.menu-card h3 {
+    color: #1a4380;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.order-items {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.order-price {
+    font-weight: bold;
+    font-size: 16px;
+    color: #1a4380;
+    margin-bottom: 15px;
+}
+
+
+.add-to-cart-btn {
+    background-color: #8cb4e1;
+    color: #1a4380;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%; 
+    font-size: 14px;
+    transition: 0.2s ease;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #76a2d4;
+}
+
+
+.status-btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    width: 100%; 
+    font-size: 14px;
+    cursor: default;
+}
+
+.status-btn.yellow {
+    background-color: #f1c40f; 
+    color: #5d4037;
+}
+
+.status-btn.green {
+    background-color: #2ecc71; 
+    color: white;
+}
+
+
+.status-step {
+    padding: 12px;
+    margin: 10px 0;
+    border-left: 4px solid #ccc;
+    padding-left: 15px;
+    font-size: 15px;
+}
+.status-step.done {
+    border-left-color: #2ecc71;
+    color: #2ecc71;
+}
+.status-step.active {
+    border-left-color: #1a4380;
+    color: #1a4380;
+    font-weight: bold;
+    background-color: #e1ecf4;
+}
+.status-step.next {
+    border-left-color: #ddd;
+    color: #999;
+}
+    #foodready {
+        position: fixed;
+        right: 20px;
+        top: 20px;
+        max-width: 320px;
+        background: #fff06e;
+        color: #fff;
+        padding: 14px 18px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+        font-family: Arial, sans-serif;
+        display: none;
+        z-index: 9999;
+    }
+    #foodready.show {
+        display: block;
+        animation: slide-in 0.35s ease-out;
+    }
+    @keyframes slide-in {
+        from { transform: translateX(120%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
