@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Order Dashboard</title>
+    <link rel="stylesheet" href="../css/order.css">
+</head>
+<div class="navbar">
+
+    <div class="logo">
+        <h2>UTeM Campus Food Ordering System</h2>
+    </div>
+
+    <div class="nav-links">
+        <a href="operator-dashboard.php">Dashboard</a>
+        <a href="#">Orders</a>
+        <a href="#">Menu</a>
+        <a href="report.php">Reports</a>
+        <a href="../operator/operator-login.php">Logout</a>
+    </div>
+
+</div>
+
+</div>
+<body>
+<div class="container">
+
+    
+    <!-- Recent Orders -->
+    <div class="card">
+        <div class="header">
+        <h2>Recent Orders</h2>
+        <a href="#">View All Orders</a>
+        </div>
+
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Item</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="ORD001">
+                    <td style="color:blue">ORD001</td>
+                    <td>Ali</td>
+                    <td>Nasi Ayam</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td>10:30 AM</td>
+                </tr>
+                <tr id="ORD002">
+                    <td style="color:blue">ORD002</td>
+                    <td>Siti</td>
+                    <td>Mee Goreng</td>
+                    <td><span class="status preparing">Preparing</span></td>
+                    <td>10:25 AM</td>
+                </tr>
+                <tr id="ORD003">
+                    <td style="color:blue">ORD003</td>
+                    <td>John</td>
+                    <td>Nasi Lemak</td>
+                    <td><span class="status completed">Completed</span></td>
+                    <td>10:20 AM</td>
+                </tr>
+                <tr id="ORD004">
+                    <td style="color:blue">ORD004</td>
+                    <td>Aina</td>
+                    <td>Chicken Chop</td>
+                    <td><span class="status preparing">Preparing</span></td>
+                    <td>10:15 AM</td>
+                </tr>
+                <tr id="ORD005">
+                    <td style="color:blue">ORD005</td>
+                    <td>Hafiz</td>
+                    <td>Roti Canai</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td>10:10 AM</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Update Status -->
+    <div class="card">
+        <h2>Order Status Update</h2>
+        <table id="ordersStatus">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th class="center-action">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="color:blue">ORD001</td>
+                    <td>Ali</td>
+                    <td>
+                        <select id="status_ORD001">
+                            <option>Pending</option>
+                            <option>Preparing</option>
+                            <option>Completed</option>
+                        </select>
+                    </td>
+                    <td class="center-action"><button onclick="updateStatus('ORD001')">Update</button></td>
+                </tr>
+                <tr>
+                    <td style="color:blue">ORD002</td>
+                    <td>Siti</td>
+                    <td>
+                        <select id="status_ORD002">
+                            <option>Pending</option>
+                            <option selected>Preparing</option>
+                            <option>Completed</option>
+                        </select>
+                    </td>
+                    <td class="center-action"><button onclick="updateStatus('ORD002')">Update</button></td>
+                </tr>
+                <tr>
+                    <td style="color:blue">ORD003</td>
+                    <td>John</td>
+                    <td>
+                        <select id="status_ORD003">
+                            <option>Pending</option>
+                            <option>Preparing</option>
+                            <option selected>Completed</option>
+                        </select>
+                    </td>
+                    <td class="center-action"><button onclick="updateStatus('ORD003')">Update</button></td>
+                </tr>
+                <tr>
+                    <td style="color:blue">ORD004</td>
+                    <td>Aina</td>
+                    <td>
+                        <select id="status_ORD004">
+                            <option>Pending</option>
+                            <option selected>Preparing</option>
+                            <option>Completed</option>
+                        </select>
+                    </td>
+                    <td class="center-action"><button onclick="updateStatus('ORD004')">Update</button></td>
+                </tr>
+                <tr>
+                    <td style="color:blue">ORD005</td>
+                    <td>Hafiz</td>
+                    <td>
+                        <select id="status_ORD005">
+                            <option selected>Pending</option>
+                            <option>Preparing</option>
+                            <option>Completed</option>
+                        </select>
+                    </td>
+                    <td class="center-action"><button onclick="updateStatus('ORD005')">Update</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
