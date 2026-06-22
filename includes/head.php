@@ -5,11 +5,11 @@
     </div>
 
     <div class="nav-links">
-        <a href="dashboard.php">Home</a>
-        <a href="profile.php">Profile</a>
+        <a href="../account/dashboard.php">Home</a>
+        <a href="../account/profile.php">Profile</a>
         <a href="../customer/menu.php">Menu</a>
         <a href="../customer/cart.php">Cart</a>
-        <a href="logout.php" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
+        <a href="../account/logout.php" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
     </div>
 
 </div>

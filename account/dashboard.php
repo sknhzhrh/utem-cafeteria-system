@@ -36,7 +36,7 @@ if (!isset($_SESSION['customer_id']))
             <h3>Customer Profile</h3>
             <p>View your customer details</p>
             <br>
-            <a href="profile.php" class="btn">View Profile</a>
+            <a href="../account/profile.php" class="btn">View Profile</a>
         </div>
 
         <div class="card">

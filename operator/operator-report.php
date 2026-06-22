@@ -30,8 +30,8 @@ $totalMenu  = $rowMenu['totalMenu'];
 /* Top Selling Menu */
 $sqlTopMenu = "
     SELECT menu.name,
-           SUM(order_menu.quantity) AS totalSold,
-           SUM(order_menu.subtotal) AS totalRevenue
+    SUM(order_menu.quantity) AS totalSold,
+    SUM(order_menu.subtotal) AS totalRevenue
     FROM order_menu
     INNER JOIN menu ON order_menu.menu_id = menu.menu_id
     GROUP BY menu.menu_id, menu.name

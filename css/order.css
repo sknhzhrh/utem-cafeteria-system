@@ -6,47 +6,6 @@ body {
 }
 
 
-.navbar {
-    background-color: #1a4380; 
-    padding: 20px 0px;        
-    text-align: center;
-    width: 100%;              
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.navbar h2 {
-    color: white;
-    margin: 0 0 15px 0;
-    font-size: 24px;
-}
-
-
-.nav-links {
-    display: flex;
-    width: 100%;              
-    padding: 0 10px;          
-    box-sizing: border-box;
-}
-
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 12px 0px;        
-    flex: 1;                 
-    margin: 0 5px;            
-    font-size: 14px;
-    border-radius: 6px;       
-    transition: 0.2s ease;
-    text-align: center;
-}
-
-.nav-links a:hover, .nav-links a.active {
-    background-color: rgba(255, 255, 255, 0.25);
-    font-weight: bold;
-}
-
-
 .container {
     max-width: 1200px;
     margin: 30px auto;
@@ -198,4 +157,40 @@ body {
         from { transform: translateX(120%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
     }
-    
+
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th {
+    background: #163B73;
+    color: white;
+    padding: 14px;
+    text-align: center;
+}
+
+table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+table tr:nth-child(even) {
+    background: #f4f6f8;
+}
+
+table tr:hover {
+    background: #eef2f7;
+}
+
+select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.center-action {
+    text-align: center;
+}
