@@ -1,11 +1,21 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['operator_id']))
 {
     header("Location: operator-login.php");
     exit();
+}
+
+// Fetch all menu items
+$sql = "SELECT * FROM menu ORDER BY category, name";
+$result = mysqli_query($conn, $sql);
+$menuItems = [];
+while ($row = mysqli_fetch_assoc($result))
+{
+    $menuItems[] = $row;
 }
 
 ?>
@@ -77,6 +87,22 @@ if (!isset($_SESSION['operator_id']))
                 <th>Price</th>
                 <th>Action</th>
             </tr>
+            <?php if (empty($menuItems)): ?>
+                <tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">No menu items yet. Add one above.</td></tr>
+            <?php else: ?>
+                <?php foreach ($menuItems as $index => $item): ?>
+                    <tr>
+                        <td><?php echo $index + 1; ?></td>
+                        <td><?php echo $item['name']; ?></td>
+                        <td><span class="category-badge category-<?php echo strtolower($item['category']); ?>"><?php echo $item['category']; ?></span></td>
+                        <td>RM <?php echo number_format($item['price'], 2); ?></td>
+                        <td class="action-buttons">
+                            <a href="#" class="btn-edit" onclick="editItem(<?php echo $item['menu_id']; ?>)">✏️ Edit</a>
+                            <button class="btn-delete" onclick="deleteItem(<?php echo $item['menu_id']; ?>, '<?php echo addslashes($item['name']); ?>')">🗑 Delete</button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </table>
 
         <p class="no-items" id="noItems" style="display:none;">No menu items yet. Add one above.</p>
@@ -87,40 +113,7 @@ if (!isset($_SESSION['operator_id']))
 
 <script>
 
-let menuItems = [
-    { menu_id:1, name:"Nasi Lemak",  price:4.50, category:"Rice"    },
-    { menu_id:2, name:"Nasi Goreng", price:5.00, category:"Rice"    },
-    { menu_id:3, name:"Mee Goreng",  price:4.50, category:"Noodles" },
-    { menu_id:4, name:"Teh Tarik",   price:2.50, category:"Drinks"  },
-    { menu_id:5, name:"Roti Canai",  price:2.00, category:"Snacks"  },
-];
-
-let nextId = 6, editingId = null;
-
-function renderTable()
-{
-    const table   = document.getElementById("menuTable");
-    const noItems = document.getElementById("noItems");
-
-    while (table.rows.length > 1) table.deleteRow(1);
-
-    if (menuItems.length === 0) { noItems.style.display = "block"; return; }
-    noItems.style.display = "none";
-
-    menuItems.forEach((item, index) =>
-    {
-        const row = table.insertRow();
-        row.innerHTML =
-            `<td>${index + 1}</td>` +
-            `<td>${item.name}</td>` +
-            `<td><span class="category-badge category-${item.category.toLowerCase()}">${item.category}</span></td>` +
-            `<td>RM ${item.price.toFixed(2)}</td>` +
-            `<td class="action-buttons">
-                <a href="#" class="btn-edit" onclick="editItem(${item.menu_id})">✏️ Edit</a>
-                <button class="btn-delete" onclick="deleteItem(${item.menu_id})">🗑 Delete</button>
-            </td>`;
-    });
-}
+let editingId = null;
 
 function submitForm()
 {
@@ -130,35 +123,52 @@ function submitForm()
 
     if (!name || isNaN(price) || price < 0 || !category) { alert("Please fill in all fields."); return; }
 
-    if (editingId !== null)
-    {
-        const item = menuItems.find(i => i.menu_id === editingId);
-        item.name = name; item.price = price; item.category = category;
-        showAlert("✓ Item updated successfully");
-        cancelEdit();
-    }
-    else
-    {
-        menuItems.push({ menu_id: nextId++, name, price, category });
-        showAlert("✓ Item added successfully");
-        clearForm();
-    }
-
-    renderTable();
+    const action = editingId ? "update" : "add";
+    
+    fetch("../api/manage-menu.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, menu_id: editingId, name, price, category })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success)
+        {
+            showAlert("✓ " + (editingId ? "Item updated" : "Item added") + " successfully");
+            clearForm();
+            cancelEdit();
+            setTimeout(() => location.reload(), 1000);
+        }
+        else
+        {
+            alert("Error: " + (data.message || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Error processing request");
+    });
 }
 
 function editItem(id)
 {
-    const item = menuItems.find(i => i.menu_id === id);
-    if (!item) return;
-    editingId = id;
-    document.getElementById("inputName").value         = item.name;
-    document.getElementById("inputPrice").value        = item.price;
-    document.getElementById("inputCategory").value     = item.category;
-    document.getElementById("formTitle").textContent   = "Edit Menu Item";
-    document.getElementById("submitBtn").textContent   = "💾 Save Changes";
-    document.getElementById("cancelBtn").style.display = "inline";
-    document.querySelector(".form-card").scrollIntoView({ behavior:"smooth" });
+    fetch(`../api/get-menu-item.php?menu_id=${id}`)
+        .then(response => response.json())
+        .then(item => {
+            if (!item || !item.menu_id) { alert("Item not found"); return; }
+            editingId = id;
+            document.getElementById("inputName").value         = item.name;
+            document.getElementById("inputPrice").value        = item.price;
+            document.getElementById("inputCategory").value     = item.category;
+            document.getElementById("formTitle").textContent   = "Edit Menu Item";
+            document.getElementById("submitBtn").textContent   = "💾 Save Changes";
+            document.getElementById("cancelBtn").style.display = "inline";
+            document.querySelector(".form-card").scrollIntoView({ behavior:"smooth" });
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("Error loading item");
+        });
 }
 
 function cancelEdit()
@@ -170,13 +180,31 @@ function cancelEdit()
     return false;
 }
 
-function deleteItem(id)
+function deleteItem(id, name)
 {
-    const item = menuItems.find(i => i.menu_id === id);
-    if (!item || !confirm("Delete " + item.name + "?")) return;
-    menuItems = menuItems.filter(i => i.menu_id !== id);
-    showAlert("✓ Item deleted");
-    renderTable();
+    if (!confirm("Delete " + name + "?")) return;
+    
+    fetch("../api/manage-menu.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", menu_id: id })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success)
+        {
+            showAlert("✓ Item deleted");
+            setTimeout(() => location.reload(), 1000);
+        }
+        else
+        {
+            alert("Error: " + (data.message || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Error deleting item");
+    });
 }
 
 function clearForm()
@@ -192,8 +220,6 @@ function showAlert(msg)
     box.textContent = msg; box.style.display = "block";
     setTimeout(() => box.style.display = "none", 3000);
 }
-
-renderTable();
 
 </script>
 

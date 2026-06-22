@@ -1,11 +1,25 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['operator_id']))
 {
     header("Location: operator-login.php");
     exit();
+}
+
+// Fetch all orders
+$sql = "SELECT o.order_id, o.order_date, o.status, o.total_amount, c.name as customer_name 
+        FROM orders o
+        INNER JOIN customer c ON o.customer_id = c.customer_id
+        ORDER BY o.order_date DESC
+        LIMIT 50";
+$result = mysqli_query($conn, $sql);
+$orders = [];
+while ($row = mysqli_fetch_assoc($result))
+{
+    $orders[] = $row;
 }
 
 ?>
@@ -41,11 +55,29 @@ if (!isset($_SESSION['operator_id']))
                 </tr>
             </thead>
             <tbody>
-                <tr id="ORD001"><td style="color:blue">ORD001</td><td>Ali</td><td>Nasi Ayam</td><td><span class="status pending">Pending</span></td><td>10:30 AM</td></tr>
-                <tr id="ORD002"><td style="color:blue">ORD002</td><td>Siti</td><td>Mee Goreng</td><td><span class="status preparing">Preparing</span></td><td>10:25 AM</td></tr>
-                <tr id="ORD003"><td style="color:blue">ORD003</td><td>John</td><td>Nasi Lemak</td><td><span class="status completed">Completed</span></td><td>10:20 AM</td></tr>
-                <tr id="ORD004"><td style="color:blue">ORD004</td><td>Aina</td><td>Chicken Chop</td><td><span class="status preparing">Preparing</span></td><td>10:15 AM</td></tr>
-                <tr id="ORD005"><td style="color:blue">ORD005</td><td>Hafiz</td><td>Roti Canai</td><td><span class="status pending">Pending</span></td><td>10:10 AM</td></tr>
+                <?php foreach ($orders as $order): ?>
+                    <?php
+                        // Fetch order items
+                        $orderId = $order['order_id'];
+                        $itemsSql = "SELECT m.name FROM order_menu om
+                                     INNER JOIN menu m ON om.menu_id = m.menu_id
+                                     WHERE om.order_id = $orderId
+                                     LIMIT 1";
+                        $itemsResult = mysqli_query($conn, $itemsSql);
+                        $item = mysqli_fetch_assoc($itemsResult);
+                        $itemName = $item ? $item['name'] : 'N/A';
+                        
+                        $statusClass = strtolower($order['status']);
+                        $orderTime = date("h:i A", strtotime($order['order_date']));
+                    ?>
+                    <tr id="ORD<?php echo $orderId; ?>">
+                        <td style="color:blue">ORD<?php echo str_pad($orderId, 3, '0', STR_PAD_LEFT); ?></td>
+                        <td><?php echo $order['customer_name']; ?></td>
+                        <td><?php echo $itemName; ?></td>
+                        <td><span class="status <?php echo $statusClass; ?>"><?php echo $order['status']; ?></span></td>
+                        <td><?php echo $orderTime; ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
@@ -63,11 +95,21 @@ if (!isset($_SESSION['operator_id']))
                 </tr>
             </thead>
             <tbody>
-                <tr><td style="color:blue">ORD001</td><td>Ali</td><td><select id="status_ORD001"><option>Pending</option><option>Preparing</option><option>Completed</option></select></td><td class="center-action"><button onclick="updateStatus('ORD001')">Update</button></td></tr>
-                <tr><td style="color:blue">ORD002</td><td>Siti</td><td><select id="status_ORD002"><option>Pending</option><option selected>Preparing</option><option>Completed</option></select></td><td class="center-action"><button onclick="updateStatus('ORD002')">Update</button></td></tr>
-                <tr><td style="color:blue">ORD003</td><td>John</td><td><select id="status_ORD003"><option>Pending</option><option>Preparing</option><option selected>Completed</option></select></td><td class="center-action"><button onclick="updateStatus('ORD003')">Update</button></td></tr>
-                <tr><td style="color:blue">ORD004</td><td>Aina</td><td><select id="status_ORD004"><option>Pending</option><option selected>Preparing</option><option>Completed</option></select></td><td class="center-action"><button onclick="updateStatus('ORD004')">Update</button></td></tr>
-                <tr><td style="color:blue">ORD005</td><td>Hafiz</td><td><select id="status_ORD005"><option selected>Pending</option><option>Preparing</option><option>Completed</option></select></td><td class="center-action"><button onclick="updateStatus('ORD005')">Update</button></td></tr>
+                <?php foreach ($orders as $order): ?>
+                    <tr>
+                        <td style="color:blue">ORD<?php echo str_pad($order['order_id'], 3, '0', STR_PAD_LEFT); ?></td>
+                        <td><?php echo $order['customer_name']; ?></td>
+                        <td>
+                            <select id="status_<?php echo $order['order_id']; ?>">
+                                <option value="Pending" <?php echo $order['status'] == 'Pending' ? 'selected' : ''; ?>>Pending</option>
+                                <option value="Preparing" <?php echo $order['status'] == 'Preparing' ? 'selected' : ''; ?>>Preparing</option>
+                                <option value="Ready" <?php echo $order['status'] == 'Ready' ? 'selected' : ''; ?>>Ready</option>
+                                <option value="Completed" <?php echo $order['status'] == 'Completed' ? 'selected' : ''; ?>>Completed</option>
+                            </select>
+                        </td>
+                        <td class="center-action"><button onclick="updateStatus(<?php echo $order['order_id']; ?>)">Update</button></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
@@ -78,14 +120,37 @@ if (!isset($_SESSION['operator_id']))
 function updateStatus(orderId)
 {
     const newStatus = document.getElementById("status_" + orderId).value;
-    const row       = document.getElementById(orderId);
-    const statusEl  = row.querySelector(".status");
-
-    statusEl.className = "status";
-    statusEl.classList.add(newStatus.toLowerCase());
-    statusEl.textContent = newStatus;
-
-    alert("Order " + orderId + " updated to: " + newStatus);
+    
+    fetch("../api/update-order-status.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId, status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success)
+        {
+            const row = document.getElementById("ORD" + orderId);
+            if (row)
+            {
+                const statusEl = row.querySelector(".status");
+                if (statusEl)
+                {
+                    statusEl.className = "status " + newStatus.toLowerCase();
+                    statusEl.textContent = newStatus;
+                }
+            }
+            alert("Order #ORD" + String(orderId).padStart(3, '0') + " updated to: " + newStatus);
+        }
+        else
+        {
+            alert("Error: " + (data.message || "Failed to update order"));
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Error updating order status");
+    });
 }
 </script>
 

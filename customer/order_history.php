@@ -1,11 +1,26 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['customer_id']))
 {
     header("Location: ../account/login.php");
     exit();
+}
+
+$customer_id = $_SESSION['customer_id'];
+
+// Fetch completed/picked up orders for this customer
+$sql = "SELECT orders.order_id, orders.order_date, orders.total_amount, orders.status 
+        FROM orders 
+        WHERE customer_id = $customer_id AND status IN ('Completed', 'Picked Up') 
+        ORDER BY order_date DESC";
+$result = mysqli_query($conn, $sql);
+$orders = [];
+while ($row = mysqli_fetch_assoc($result))
+{
+    $orders[] = $row;
 }
 
 ?>
@@ -38,19 +53,45 @@ if (!isset($_SESSION['customer_id']))
 
     <div class="menu-grid">
 
-        <div class="menu-card">
-            <h3>Order #UTM-910</h3>
-            <p class="order-items">Nasi Ayam x1<br>Sirap Bandung x1</p>
-            <p class="order-price">Total Paid: RM 8.50</p>
-            <button class="status-btn green">✓ Completed on 04/06/2026</button>
-        </div>
-
-        <div class="menu-card">
-            <h3>Order #UTM-854</h3>
-            <p class="order-items">Burger Ramly x1<br>Milo Ais x1</p>
-            <p class="order-price">Total Paid: RM 9.50</p>
-            <button class="status-btn green">✓ Completed on 01/06/2026</button>
-        </div>
+        <?php if (empty($orders)): ?>
+            <div style="text-align:center; padding:40px; grid-column: 1/-1;">
+                <p style="font-size:18px; color:#888;">No order history yet.</p>
+                <a href="menu.php" class="btn" style="margin-top:20px;">Start Ordering</a>
+            </div>
+        <?php else: ?>
+            <?php foreach ($orders as $order): ?>
+                <?php
+                    // Fetch order items
+                    $orderId = $order['order_id'];
+                    $itemsSql = "SELECT m.name, om.quantity FROM order_menu om 
+                                 INNER JOIN menu m ON om.menu_id = m.menu_id 
+                                 WHERE om.order_id = $orderId";
+                    $itemsResult = mysqli_query($conn, $itemsSql);
+                    $items = [];
+                    while ($item = mysqli_fetch_assoc($itemsResult))
+                    {
+                        $items[] = $item;
+                    }
+                    
+                    $orderDate = date("d/m/Y", strtotime($order['order_date']));
+                ?>
+                <div class="menu-card">
+                    <h3>Order #UTM-<?php echo str_pad($orderId, 3, '0', STR_PAD_LEFT); ?></h3>
+                    <p class="order-items">
+                        <?php
+                            $itemsDisplay = [];
+                            foreach ($items as $item)
+                            {
+                                $itemsDisplay[] = $item['name'] . " x" . $item['quantity'];
+                            }
+                            echo implode("<br>", $itemsDisplay);
+                        ?>
+                    </p>
+                    <p class="order-price">Total Paid: RM <?php echo number_format($order['total_amount'], 2); ?></p>
+                    <button class="status-btn green">✓ Completed on <?php echo $orderDate; ?></button>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
 
     </div>
 

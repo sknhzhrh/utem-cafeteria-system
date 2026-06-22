@@ -1,11 +1,27 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['customer_id']))
 {
     header("Location: ../account/login.php");
     exit();
+}
+
+$customer_id = $_SESSION['customer_id'];
+
+// Fetch active/pending orders for this customer
+$sql = "SELECT orders.order_id, orders.order_date, orders.total_amount, orders.status 
+        FROM orders 
+        WHERE customer_id = $customer_id AND status IN ('Pending', 'Preparing', 'Ready') 
+        ORDER BY order_date DESC 
+        LIMIT 5";
+$result = mysqli_query($conn, $sql);
+$orders = [];
+while ($row = mysqli_fetch_assoc($result))
+{
+    $orders[] = $row;
 }
 
 ?>
@@ -39,25 +55,51 @@ if (!isset($_SESSION['customer_id']))
 
     <div class="menu-grid">
 
-        <div class="menu-card">
-            <h3>Order #UTEM-991</h3>
-            <p class="order-items">Kampung Fried Rice x2<br>Fresh Lemonade x1</p>
-            <p class="order-price">Total: RM 20.50</p>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <button class="status-btn yellow">Status: Preparing</button>
-                <a href="order_status.php"><button class="add-to-cart-btn">Track Live Status</button></a>
+        <?php if (empty($orders)): ?>
+            <div style="text-align:center; padding:40px; grid-column: 1/-1;">
+                <p style="font-size:18px; color:#888;">No active orders yet.</p>
+                <a href="menu.php" class="btn" style="margin-top:20px;">Start Ordering</a>
             </div>
-        </div>
-
-        <div class="menu-card">
-            <h3>Order #UTEM-985</h3>
-            <p class="order-items">Mee Goreng x1</p>
-            <p class="order-price">Total: RM 5.00</p>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <button class="status-btn green">Status: Ready to Pick Up ✓</button>
-                <a href="order_status.php"><button class="add-to-cart-btn">Track Live Status</button></a>
-            </div>
-        </div>
+        <?php else: ?>
+            <?php foreach ($orders as $order): ?>
+                <?php
+                    // Fetch order items
+                    $orderId = $order['order_id'];
+                    $itemsSql = "SELECT m.name, om.quantity FROM order_menu om 
+                                 INNER JOIN menu m ON om.menu_id = m.menu_id 
+                                 WHERE om.order_id = $orderId";
+                    $itemsResult = mysqli_query($conn, $itemsSql);
+                    $items = [];
+                    while ($item = mysqli_fetch_assoc($itemsResult))
+                    {
+                        $items[] = $item;
+                    }
+                    
+                    $statusClass = "yellow";
+                    $statusText = "Pending";
+                    if ($order['status'] == 'Ready') { $statusClass = "green"; $statusText = "Ready to Pick Up ✓"; }
+                    elseif ($order['status'] == 'Preparing') { $statusClass = "yellow"; $statusText = "Preparing"; }
+                ?>
+                <div class="menu-card">
+                    <h3>Order #UTEM-<?php echo str_pad($orderId, 3, '0', STR_PAD_LEFT); ?></h3>
+                    <p class="order-items">
+                        <?php
+                            $itemsDisplay = [];
+                            foreach ($items as $item)
+                            {
+                                $itemsDisplay[] = $item['name'] . " x" . $item['quantity'];
+                            }
+                            echo implode("<br>", $itemsDisplay);
+                        ?>
+                    </p>
+                    <p class="order-price">Total: RM <?php echo number_format($order['total_amount'], 2); ?></p>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <button class="status-btn <?php echo $statusClass; ?>">Status: <?php echo $statusText; ?></button>
+                        <a href="order_status.php?order_id=<?php echo $orderId; ?>"><button class="add-to-cart-btn">Track Live Status</button></a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
 
     </div>
 

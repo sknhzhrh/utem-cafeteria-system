@@ -1,11 +1,50 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['customer_id']))
 {
     header("Location: ../account/login.php");
     exit();
+}
+
+$customer_id = $_SESSION['customer_id'];
+
+// Get order_id from URL
+$orderId = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
+
+if (!$orderId)
+{
+    header("Location: ../customer/menu.php");
+    exit();
+}
+
+// Fetch order details
+$orderSql = "SELECT * FROM orders WHERE order_id = $orderId AND customer_id = $customer_id";
+$orderResult = mysqli_query($conn, $orderSql);
+$order = mysqli_fetch_assoc($orderResult);
+
+if (!$order)
+{
+    header("Location: ../customer/menu.php");
+    exit();
+}
+
+// Fetch payment info
+$paymentSql = "SELECT * FROM payment WHERE order_id = $orderId";
+$paymentResult = mysqli_query($conn, $paymentSql);
+$payment = mysqli_fetch_assoc($paymentResult);
+
+// Fetch order items
+$itemsSql = "SELECT m.name, om.quantity, om.subtotal FROM order_menu om 
+             INNER JOIN menu m ON om.menu_id = m.menu_id 
+             WHERE om.order_id = $orderId";
+$itemsResult = mysqli_query($conn, $itemsSql);
+$items = [];
+while ($item = mysqli_fetch_assoc($itemsResult))
+{
+    $items[] = $item;
 }
 
 ?>
@@ -41,17 +80,35 @@ if (!isset($_SESSION['customer_id']))
     <div class="status-badge">✔ Payment Successful</div>
 
     <div class="meta-box">
-        <div><strong>Transaction ID:</strong> <span id="recId">Loading...</span></div>
-        <div><strong>Date & Time:</strong> <span id="recDate">Loading...</span></div>
-        <div><strong>Payment Via:</strong> <span id="recMethod">Loading...</span></div>
+        <div><strong>Transaction ID:</strong> <span id="recId"><?php echo isset($payment) ? 'PAY-' . $payment['payment_id'] : 'Loading...'; ?></span></div>
+        <div><strong>Date & Time:</strong> <span id="recDate"><?php echo isset($order) ? date("d/m/Y H:i A", strtotime($order['order_date'])) : 'Loading...'; ?></span></div>
+        <div><strong>Payment Via:</strong> <span id="recMethod"><?php echo isset($payment) ? ucfirst($payment['method']) : 'Loading...'; ?></span></div>
     </div>
 
     <div class="receipt-bill">
-        <div id="receiptItemsContainer"></div>
+        <div id="receiptItemsContainer">
+            <?php if (isset($items) && !empty($items)): ?>
+                <?php 
+                    $total = 0;
+                    foreach ($items as $item): 
+                        $total += $item['subtotal'];
+                ?>
+                    <div class="item-row">
+                        <div style="text-align:left; flex:1;">
+                            <div class="item-name"><?php echo $item['name']; ?></div>
+                        </div>
+                        <div style="width:50px; text-align:center; color:#555;">x<?php echo $item['quantity']; ?></div>
+                        <div style="width:80px; text-align:right; font-weight:500;">RM <?php echo number_format($item['subtotal'], 2); ?></div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No items found for this order.</p>
+            <?php endif; ?>
+        </div>
         <div class="divider"></div>
         <div class="total-row">
             <span>Amount Paid</span>
-            <span id="recTotal">RM 0.00</span>
+            <span id="recTotal">RM <?php echo isset($order) ? number_format($order['total_amount'], 2) : '0.00'; ?></span>
         </div>
     </div>
 
@@ -64,53 +121,7 @@ if (!isset($_SESSION['customer_id']))
 </div>
 
 <script>
-
-function loadReceiptInfo()
-{
-    const lastOrder     = JSON.parse(localStorage.getItem("lastOrder"));
-    const receiptId     = localStorage.getItem("receiptId");
-    const receiptDate   = localStorage.getItem("receiptDate");
-    const paymentMethod = localStorage.getItem("paymentMethodUsed");
-
-    document.getElementById("recId").innerText     = receiptId   || "TXN-764912";
-    document.getElementById("recDate").innerText   = receiptDate || "06/05/2026, 10:19 PM";
-    document.getElementById("recMethod").innerText = paymentMethod || "FPX Online Banking";
-
-    const items = lastOrder || [
-        { name:"Kampung Fried Rice", price:7.00, quantity:2, spicy:"Medium", addons:["Extra Egg (+RM2)"], note:"No onions please", subtotal:18.00 },
-        { name:"Fresh Lemonade",     price:2.00, quantity:1, drink:"Cold (+RM0.50)", addons:[], note:"", subtotal:2.50 }
-    ];
-
-    let total = 0, html = "";
-
-    items.forEach(item =>
-    {
-        let sub = item.subtotal || (item.price * item.quantity);
-        total  += sub;
-
-        let custom = "";
-        if (item.spicy)  custom += `<div>• Spicy: ${item.spicy}</div>`;
-        if (item.drink)  custom += `<div>• Beverage: ${item.drink}</div>`;
-        if (item.addons && item.addons.length) custom += `<div>• Add-ons: ${item.addons.join(", ")}</div>`;
-        if (item.note)   custom += `<div class="item-note">• Note: "${item.note}"</div>`;
-
-        html += `
-            <div class="item-row">
-                <div style="text-align:left; flex:1;">
-                    <div class="item-name">${item.name}</div>
-                    ${custom ? `<div class="item-customization">${custom}</div>` : ""}
-                </div>
-                <div style="width:50px; text-align:center; color:#555;">x${item.quantity}</div>
-                <div style="width:80px; text-align:right; font-weight:500;">RM ${sub.toFixed(2)}</div>
-            </div>`;
-    });
-
-    document.getElementById("receiptItemsContainer").innerHTML = html;
-    document.getElementById("recTotal").innerText = "RM " + total.toFixed(2);
-}
-
-loadReceiptInfo();
-
+// No localStorage needed - all data from database
 </script>
 
 </body>

@@ -1,10 +1,20 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['customer_id']))
 {
     header("Location: ../account/login.php");
+    exit();
+}
+
+// Get cart from session
+$cart = isset($_SESSION['temp_cart']) ? $_SESSION['temp_cart'] : [];
+
+if (empty($cart))
+{
+    header("Location: ../customer/menu.php");
     exit();
 }
 
@@ -79,15 +89,8 @@ if (!isset($_SESSION['customer_id']))
 
 <script>
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-if (cart.length === 0)
-{
-    cart = [
-        { name:"Kampung Fried Rice", price:7.00, quantity:2, spicy:"Medium", drink:"", addons:["Extra Egg (+RM2)"], note:"No onions please", subtotal:18.00 },
-        { name:"Fresh Lemonade",     price:2.00, quantity:1, spicy:"",       drink:"Cold (+RM0.50)", addons:[], note:"", subtotal:2.50 }
-    ];
-}
+// Get cart from PHP session
+const cart = <?php echo json_encode($cart); ?>;
 
 function loadCheckoutSummary()
 {
@@ -118,20 +121,45 @@ function loadCheckoutSummary()
 
     container.innerHTML = html;
     document.getElementById("grandTotalPrice").innerText = "RM " + total.toFixed(2);
+    window.orderTotal = total;
 }
 
 function processPayment()
 {
     const method = document.querySelector('input[name="paymentMethod"]:checked').value;
 
-    localStorage.setItem("lastOrder", JSON.stringify(cart));
-    localStorage.setItem("paymentMethodUsed", method === "fpx" ? "FPX Online Banking" : "E-Wallet");
-    localStorage.setItem("receiptId",   "TXN-" + Math.floor(Math.random() * 900000 + 100000));
-    localStorage.setItem("receiptDate", new Date().toLocaleString("en-MY", { hour12: true }));
+    if (cart.length === 0)
+    {
+        alert("Your cart is empty!");
+        return;
+    }
 
-    alert("Payment authorized via " + method.toUpperCase() + "!");
-    localStorage.removeItem("cart");
-    window.location.href = "receipt.php";
+    // Send payment data to server
+    fetch("../api/process-payment.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            cart: cart,
+            paymentMethod: method,
+            total: window.orderTotal
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success)
+        {
+            alert("Payment authorized via " + method.toUpperCase() + "!");
+            window.location.href = "receipt.php?order_id=" + data.orderId;
+        }
+        else
+        {
+            alert("Payment failed: " + (data.message || "Unknown error"));
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Payment processing error. Please try again.");
+    });
 }
 
 loadCheckoutSummary();

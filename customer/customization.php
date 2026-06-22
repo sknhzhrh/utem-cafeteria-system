@@ -1,10 +1,37 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['customer_id']))
 {
     header("Location: ../account/login.php");
+    exit();
+}
+
+// Initialize cart in session if not exists
+if (!isset($_SESSION['temp_cart']))
+{
+    $_SESSION['temp_cart'] = [];
+}
+
+// Get menu_id from URL parameter
+$menu_id = isset($_GET['menu_id']) ? intval($_GET['menu_id']) : 0;
+
+if (!$menu_id)
+{
+    header("Location: menu.php");
+    exit();
+}
+
+// Fetch menu item from database
+$sql = "SELECT * FROM menu WHERE menu_id = $menu_id";
+$result = mysqli_query($conn, $sql);
+$menuItem = mysqli_fetch_assoc($result);
+
+if (!$menuItem)
+{
+    header("Location: menu.php");
     exit();
 }
 
@@ -74,38 +101,22 @@ if (!isset($_SESSION['customer_id']))
 
 <script>
 
-const menuItems = [
-    { menu_id: 1,  name: "Nasi Lemak",   price: 4.50 },
-    { menu_id: 2,  name: "Nasi Goreng",  price: 5.00 },
-    { menu_id: 3,  name: "Nasi Ayam",    price: 5.50 },
-    { menu_id: 4,  name: "Mee Goreng",   price: 4.50 },
-    { menu_id: 5,  name: "Mee Rebus",    price: 4.50 },
-    { menu_id: 6,  name: "Laksa",        price: 5.50 },
-    { menu_id: 7,  name: "Roti Canai",   price: 2.00 },
-    { menu_id: 8,  name: "Karipap",      price: 1.50 },
-    { menu_id: 9,  name: "Teh Tarik",    price: 2.50 },
-    { menu_id: 10, name: "Milo Ais",     price: 2.50 },
-    { menu_id: 11, name: "Air Mineral",  price: 1.50 },
-    { menu_id: 12, name: "Cendol",       price: 3.00 },
-    { menu_id: 13, name: "Ais Kacang",   price: 3.50 },
-    { menu_id: 14, name: "Puding Roti",  price: 2.50 },
-];
-
-let qty  = 1;
-const id = localStorage.getItem("selectedFoodId");
-const food = menuItems.find(m => m.menu_id == id);
-
-if (!food) { alert("No item selected!"); window.location.href = "menu.php"; }
+const food = {
+    menu_id: <?php echo $menuItem['menu_id']; ?>,
+    name: "<?php echo $menuItem['name']; ?>",
+    price: <?php echo $menuItem['price']; ?>
+};
 
 document.getElementById("foodName").innerText  = food.name;
-document.getElementById("foodPrice").innerText = "Base Price: RM " + food.price.toFixed(2);
+document.getElementById("foodPrice").innerText = "Base Price: RM " + parseFloat(food.price).toFixed(2);
+
+let qty = 1;
 
 function plus()  { qty++; document.getElementById("qty").innerText = qty; }
 function minus() { if (qty > 1) { qty--; document.getElementById("qty").innerText = qty; } }
 
 function addToCart()
 {
-    let cart   = JSON.parse(localStorage.getItem("cart")) || [];
     let spicy  = document.getElementById("spicy").value;
     let drink  = document.getElementById("drink").value;
     let addons = [];
@@ -120,30 +131,40 @@ function addToCart()
         if (match) subtotal += parseFloat(match[1]) * qty;
     });
 
-    const existing = cart.find(c => c.menu_id == food.menu_id);
-    if (existing)
-    {
-        existing.quantity += qty;
-        existing.subtotal  = +(existing.subtotal + subtotal).toFixed(2);
-    }
-    else
-    {
-        cart.push({
-            menu_id:  food.menu_id,
-            name:     food.name,
-            price:    food.price,
-            quantity: qty,
-            spicy:    spicy,
-            drink:    drink,
-            addons:   addons,
-            note:     document.getElementById("note").value,
-            subtotal: +subtotal.toFixed(2)
-        });
-    }
+    const item = {
+        menu_id:  food.menu_id,
+        name:     food.name,
+        price:    parseFloat(food.price),
+        quantity: qty,
+        spicy:    spicy,
+        drink:    drink,
+        addons:   addons,
+        note:     document.getElementById("note").value,
+        subtotal: +subtotal.toFixed(2)
+    };
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert(food.name + " added to cart!");
-    window.location.href = "menu.php";
+    // Send to PHP session via API
+    fetch("../api/add-to-cart.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success)
+        {
+            alert(food.name + " added to cart!");
+            window.location.href = "menu.php";
+        }
+        else
+        {
+            alert("Error: " + (data.message || "Failed to add item"));
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Error adding to cart");
+    });
 }
 
 </script>

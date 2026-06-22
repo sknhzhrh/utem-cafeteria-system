@@ -1,11 +1,21 @@
 <?php
 
 session_start();
+include("../connect.php");
 
 if (!isset($_SESSION['customer_id']))
 {
     header("Location: ../account/login.php");
     exit();
+}
+
+// Fetch menu items from database
+$sql = "SELECT menu_id, name, price, category FROM menu ORDER BY category, name";
+$result = mysqli_query($conn, $sql);
+$menuItems = [];
+while ($row = mysqli_fetch_assoc($result))
+{
+    $menuItems[] = $row;
 }
 
 ?>
@@ -50,25 +60,22 @@ if (!isset($_SESSION['customer_id']))
 
 <script>
 
-const menuItems = [
-    { menu_id: 1,  name: "Nasi Lemak",   price: 4.50, category: "Rice",     emoji: "🍛" },
-    { menu_id: 2,  name: "Nasi Goreng",  price: 5.00, category: "Rice",     emoji: "🍳" },
-    { menu_id: 3,  name: "Nasi Ayam",    price: 5.50, category: "Rice",     emoji: "🍗" },
-    { menu_id: 4,  name: "Mee Goreng",   price: 4.50, category: "Noodles",  emoji: "🍜" },
-    { menu_id: 5,  name: "Mee Rebus",    price: 4.50, category: "Noodles",  emoji: "🍲" },
-    { menu_id: 6,  name: "Laksa",        price: 5.50, category: "Noodles",  emoji: "🥣" },
-    { menu_id: 7,  name: "Roti Canai",   price: 2.00, category: "Snacks",   emoji: "🫓" },
-    { menu_id: 8,  name: "Karipap",      price: 1.50, category: "Snacks",   emoji: "🥟" },
-    { menu_id: 9,  name: "Teh Tarik",    price: 2.50, category: "Drinks",   emoji: "🧋" },
-    { menu_id: 10, name: "Milo Ais",     price: 2.50, category: "Drinks",   emoji: "🥤" },
-    { menu_id: 11, name: "Air Mineral",  price: 1.50, category: "Drinks",   emoji: "💧" },
-    { menu_id: 12, name: "Cendol",       price: 3.00, category: "Desserts", emoji: "🍧" },
-    { menu_id: 13, name: "Ais Kacang",   price: 3.50, category: "Desserts", emoji: "🍨" },
-    { menu_id: 14, name: "Puding Roti",  price: 2.50, category: "Desserts", emoji: "🍮" },
-];
+const menuItems = <?php
+    $itemsWithEmoji = array_map(function($item) {
+        $emojis = [
+            "Rice" => "🍛",
+            "Noodles" => "🍜",
+            "Snacks" => "🫓",
+            "Drinks" => "🧋",
+            "Desserts" => "🍧"
+        ];
+        $item['emoji'] = $emojis[$item['category']] ?? "🍽️";
+        return $item;
+    }, $menuItems);
+    echo json_encode($itemsWithEmoji);
+?>;
 
 let activeCategory = "All";
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 function renderMenu()
 {
@@ -91,7 +98,7 @@ function renderMenu()
             <div class="menu-card-body">
                 <div class="menu-card-category">${item.category}</div>
                 <div class="menu-card-name">${item.name}</div>
-                <div class="menu-card-price">RM ${item.price.toFixed(2)}</div>
+                <div class="menu-card-price">RM ${parseFloat(item.price).toFixed(2)}</div>
                 <button class="add-to-cart-btn" onclick="goCustomize(${item.menu_id})">Customize & Add</button>
             </div>
         </div>
@@ -110,19 +117,10 @@ function filterMenu() { renderMenu(); }
 
 function goCustomize(menuId)
 {
-    localStorage.setItem("selectedFoodId", menuId);
-    window.location.href = "customization.php";
-}
-
-function updateCartCount()
-{
-    const total = cart.reduce((sum, c) => sum + c.quantity, 0);
-    const el    = document.getElementById("cartCount");
-    if (el) el.textContent = total;
+    window.location.href = "customization.php?menu_id=" + menuId;
 }
 
 renderMenu();
-updateCartCount();
 
 </script>
 
