@@ -3,39 +3,51 @@
 session_start();
 include("../connect.php");
 
-header("Content-Type: application/json");
-
 if (!isset($_SESSION['customer_id']))
 {
-    echo json_encode(["success" => false, "message" => "Not authenticated"]);
+    echo http_build_query([
+        'success' => '0',
+        'message' => 'Not authenticated'
+    ]);
     exit;
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-if (!$data || !isset($data['cart']) || !isset($data['paymentMethod']) || !isset($data['total']))
+if (!isset($_POST['paymentMethod']) || !isset($_POST['total']))
 {
-    echo json_encode(["success" => false, "message" => "Invalid data"]);
+    echo http_build_query([
+        'success' => '0',
+        'message' => 'Invalid data'
+    ]);
     exit;
 }
 
 $customer_id = $_SESSION['customer_id'];
-$cart = $data['cart'];
-$paymentMethod = $data['paymentMethod'];
-$total = floatval($data['total']);
+$cart = $_SESSION['temp_cart'] ?? [];
+$paymentMethod = $_POST['paymentMethod'];
+$total = floatval($_POST['total']);
 
-// Insert order
-$orderStatus = "Pending";
+if (empty($cart))
+{
+    echo http_build_query([
+        'success' => '0',
+        'message' => 'Cart is empty'
+    ]);
+    exit;
+}
+
+$orderStatus = 'Pending';
 $sqlOrder = "INSERT INTO orders (customer_id, total_amount, status) VALUES ($customer_id, $total, '$orderStatus')";
 if (!mysqli_query($conn, $sqlOrder))
 {
-    echo json_encode(["success" => false, "message" => "Failed to create order"]);
+    echo http_build_query([
+        'success' => '0',
+        'message' => 'Failed to create order'
+    ]);
     exit;
 }
 
 $orderId = mysqli_insert_id($conn);
 
-// Insert order items
 foreach ($cart as $item)
 {
     $menuId = intval($item['menu_id']);
@@ -46,17 +58,15 @@ foreach ($cart as $item)
     mysqli_query($conn, $sqlOrderMenu);
 }
 
-// Insert payment record
 $sqlPayment = "INSERT INTO payment (order_id, amount, method) VALUES ($orderId, $total, '$paymentMethod')";
 mysqli_query($conn, $sqlPayment);
 
-// Clear temporary cart from session
 unset($_SESSION['temp_cart']);
 
-echo json_encode([
-    "success" => true,
-    "orderId" => $orderId,
-    "message" => "Payment processed successfully"
+echo http_build_query([
+    'success' => '1',
+    'orderId' => (string) $orderId,
+    'message' => 'Payment processed successfully'
 ]);
 
 ?>

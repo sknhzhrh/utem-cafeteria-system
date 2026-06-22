@@ -2,11 +2,9 @@
 
 include("../connect.php");
 
-header("Content-Type: application/json");
-
 if (!isset($_GET['menu_id']))
 {
-    echo json_encode(null);
+    echo 'menu_id=';
     exit;
 }
 
@@ -15,6 +13,12 @@ $sql = "SELECT menu_id, name, price, category FROM menu WHERE menu_id = $menu_id
 $result = mysqli_query($conn, $sql);
 $row = mysqli_fetch_assoc($result);
 
-echo json_encode($row);
+if (!$row)
+{
+    echo 'menu_id=';
+    exit;
+}
+
+echo http_build_query($row);
 
 ?>

@@ -120,15 +120,22 @@ while ($row = mysqli_fetch_assoc($result))
 function updateStatus(orderId)
 {
     const newStatus = document.getElementById("status_" + orderId).value;
-    
+    const formData = new URLSearchParams();
+    formData.append("order_id", orderId);
+    formData.append("status", newStatus);
+
     fetch("../api/update-order-status.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order_id: orderId, status: newStatus })
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success)
+    .then(response => response.text())
+    .then(text => {
+        const params = new URLSearchParams(text);
+        const success = params.get("success") === "1";
+        const message = params.get("message") || "Failed to update order";
+
+        if (success)
         {
             const row = document.getElementById("ORD" + orderId);
             if (row)
@@ -144,7 +151,7 @@ function updateStatus(orderId)
         }
         else
         {
-            alert("Error: " + (data.message || "Failed to update order"));
+            alert("Error: " + message);
         }
     })
     .catch(err => {

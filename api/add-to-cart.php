@@ -3,41 +3,41 @@
 session_start();
 include("../connect.php");
 
-header("Content-Type: application/json");
-
 if (!isset($_SESSION['customer_id']))
 {
-    echo json_encode(["success" => false, "message" => "Not authenticated"]);
+    echo http_build_query([
+        'success' => '0',
+        'message' => 'Not authenticated'
+    ]);
     exit;
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-if (!$data || !isset($data['menu_id']))
+if (!isset($_POST['menu_id']) || !isset($_POST['name']) || !isset($_POST['price']))
 {
-    echo json_encode(["success" => false, "message" => "Invalid data"]);
+    echo http_build_query([
+        'success' => '0',
+        'message' => 'Invalid data'
+    ]);
     exit;
 }
 
-// Initialize temp cart if doesn't exist
 if (!isset($_SESSION['temp_cart']))
 {
     $_SESSION['temp_cart'] = [];
 }
 
 $item = [
-    'menu_id'  => intval($data['menu_id']),
-    'name'     => $data['name'] ?? '',
-    'price'    => floatval($data['price']),
-    'quantity' => intval($data['quantity']),
-    'spicy'    => $data['spicy'] ?? '',
-    'drink'    => $data['drink'] ?? '',
-    'addons'   => $data['addons'] ?? [],
-    'note'     => $data['note'] ?? '',
-    'subtotal' => floatval($data['subtotal'])
+    'menu_id'  => intval($_POST['menu_id']),
+    'name'     => $_POST['name'] ?? '',
+    'price'    => floatval($_POST['price']),
+    'quantity' => intval($_POST['quantity'] ?? 1),
+    'spicy'    => $_POST['spicy'] ?? '',
+    'drink'    => $_POST['drink'] ?? '',
+    'addons'   => isset($_POST['addons']) ? (array) $_POST['addons'] : [],
+    'note'     => $_POST['note'] ?? '',
+    'subtotal' => floatval($_POST['subtotal'] ?? 0)
 ];
 
-// Check if item already exists
 $found = false;
 foreach ($_SESSION['temp_cart'] as &$cartItem)
 {
@@ -55,6 +55,9 @@ if (!$found)
     $_SESSION['temp_cart'][] = $item;
 }
 
-echo json_encode(["success" => true, "message" => "Item added to cart"]);
+echo http_build_query([
+    'success' => '1',
+    'message' => 'Item added to cart'
+]);
 
 ?>

@@ -9,13 +9,18 @@ if (!isset($_SESSION['customer_id']))
     exit();
 }
 
-// Get cart from session
 $cart = isset($_SESSION['temp_cart']) ? $_SESSION['temp_cart'] : [];
 
 if (empty($cart))
 {
     header("Location: ../customer/menu.php");
     exit();
+}
+
+$total = 0;
+foreach ($cart as $item)
+{
+    $total += floatval($item['subtotal'] ?? 0);
 }
 
 ?>
@@ -57,29 +62,58 @@ if (empty($cart))
     <div class="summary-box">
         <h3>Order Summary</h3>
         <div class="divider"></div>
-        <div id="checkoutItemsContainer"></div>
+        <div id="checkoutItemsContainer">
+            <?php foreach ($cart as $item): ?>
+                <?php
+                    $sub = floatval($item['subtotal'] ?? 0);
+                    $custom = '';
+                    if (!empty($item['spicy']))
+                        $custom .= '<div>• Spicy: ' . htmlspecialchars($item['spicy']) . '</div>';
+                    if (!empty($item['drink']))
+                        $custom .= '<div>• Beverage: ' . htmlspecialchars($item['drink']) . '</div>';
+                    if (!empty($item['addons']))
+                        $custom .= '<div>• Add-ons: ' . htmlspecialchars(implode(", ", (array)$item['addons'])) . '</div>';
+                    if (!empty($item['note']))
+                        $custom .= '<div class="item-note">• Note: "' . htmlspecialchars($item['note']) . '"</div>';
+                ?>
+                <div class="item-row">
+                    <div style="flex:1;">
+                        <div class="item-name"><?php echo htmlspecialchars($item['name']); ?></div>
+                        <?php if ($custom !== ''): ?>
+                            <div class="item-customization"><?php echo $custom; ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <div style="width:50px; text-align:center; color:#555;">x<?php echo (int)$item['quantity']; ?></div>
+                    <div style="width:80px; text-align:right; font-weight:bold; color:#274472;">RM <?php echo number_format($sub, 2); ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
         <div class="divider"></div>
         <div class="total-row">
             <span>Grand Total</span>
-            <span id="grandTotalPrice">RM 0.00</span>
+            <span>RM <?php echo number_format($total, 2); ?></span>
         </div>
     </div>
 
-    <div class="form-group">
-        <label>Choose Payment Method</label>
-        <div class="radio-group">
-            <label class="radio-label">
-                <input type="radio" name="paymentMethod" value="fpx" checked>
-                <strong>FPX Online Banking</strong>
-            </label>
-            <label class="radio-label">
-                <input type="radio" name="paymentMethod" value="ewallet">
-                <strong>E-Wallet (Touch 'n Go / GrabPay)</strong>
-            </label>
-        </div>
-    </div>
+    <form method="POST" action="../api/process-payment.php">
+        <input type="hidden" name="total" value="<?php echo number_format($total, 2, '.', ''); ?>">
 
-    <button class="btn-pay" onclick="processPayment()">Confirm & Pay Now</button>
+        <div class="form-group">
+            <label>Choose Payment Method</label>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="paymentMethod" value="fpx" checked>
+                    <strong>FPX Online Banking</strong>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="paymentMethod" value="ewallet">
+                    <strong>E-Wallet (Touch 'n Go / GrabPay)</strong>
+                </label>
+            </div>
+        </div>
+
+        <button class="btn-pay" type="submit">Confirm & Pay Now</button>
+    </form>
 
     <div style="text-align:center; margin-top:20px;">
         <a href="../customer/cart.php" class="btn">← Back to Cart</a>
@@ -88,81 +122,6 @@ if (empty($cart))
 </div>
 
 <script>
-
-// Get cart from PHP session
-const cart = <?php echo json_encode($cart); ?>;
-
-function loadCheckoutSummary()
-{
-    const container = document.getElementById("checkoutItemsContainer");
-    let html = "", total = 0;
-
-    cart.forEach(item =>
-    {
-        let sub = item.subtotal || (item.price * item.quantity);
-        total  += sub;
-
-        let custom = "";
-        if (item.spicy)  custom += `<div>• Spicy: ${item.spicy}</div>`;
-        if (item.drink)  custom += `<div>• Beverage: ${item.drink}</div>`;
-        if (item.addons && item.addons.length) custom += `<div>• Add-ons: ${item.addons.join(", ")}</div>`;
-        if (item.note)   custom += `<div class="item-note">• Note: "${item.note}"</div>`;
-
-        html += `
-            <div class="item-row">
-                <div style="flex:1;">
-                    <div class="item-name">${item.name}</div>
-                    ${custom ? `<div class="item-customization">${custom}</div>` : ""}
-                </div>
-                <div style="width:50px; text-align:center; color:#555;">x${item.quantity}</div>
-                <div style="width:80px; text-align:right; font-weight:bold; color:#274472;">RM ${sub.toFixed(2)}</div>
-            </div>`;
-    });
-
-    container.innerHTML = html;
-    document.getElementById("grandTotalPrice").innerText = "RM " + total.toFixed(2);
-    window.orderTotal = total;
-}
-
-function processPayment()
-{
-    const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-
-    if (cart.length === 0)
-    {
-        alert("Your cart is empty!");
-        return;
-    }
-
-    // Send payment data to server
-    fetch("../api/process-payment.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            cart: cart,
-            paymentMethod: method,
-            total: window.orderTotal
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success)
-        {
-            alert("Payment authorized via " + method.toUpperCase() + "!");
-            window.location.href = "receipt.php?order_id=" + data.orderId;
-        }
-        else
-        {
-            alert("Payment failed: " + (data.message || "Unknown error"));
-        }
-    })
-    .catch(err => {
-        console.error("Error:", err);
-        alert("Payment processing error. Please try again.");
-    });
-}
-
-loadCheckoutSummary();
 
 </script>
 
