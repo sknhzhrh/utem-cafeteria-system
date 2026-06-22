@@ -8,30 +8,19 @@ if (isset($_POST['login']))
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-<<<<<<< HEAD
-    $sql    = "SELECT * FROM cafeteria_operator WHERE username='$username' AND password='$password'";
-    $result = mysqli_query($conn, $sql);
-
-=======
     $sql = "SELECT * FROM cafeteria_operator
             WHERE username='$username'";
 
     $result = mysqli_query($conn, $sql);
 
->>>>>>> wan-nursakinah
     if (mysqli_num_rows($result) == 1)
     {
         $row = mysqli_fetch_assoc($result);
 
-<<<<<<< HEAD
-        $_SESSION['operator_id']   = $row['operator_id'];
-        $_SESSION['operator_name'] = $row['name'];
-=======
         if (password_verify($password, $row['password']))
         {
             $_SESSION['operator_id'] = $row['operator_id'];
             $_SESSION['operator_name'] = $row['name'];
->>>>>>> wan-nursakinah
 
             header("Location: operator-dashboard.php");
             exit();
@@ -88,16 +77,12 @@ if (isset($_POST['login']))
 
     <p class="link-text">Customer login? <a href="../account/login.php">Click here</a></p>
 
-<<<<<<< HEAD
-</div>
-=======
         <p class="link-text">
             Customer login?
             <a href="../account/login.php">Click here</a>
         </p>
 
     </div>
->>>>>>> wan-nursakinah
 
 </body>
 </html>

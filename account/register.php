@@ -9,21 +9,6 @@ if (isset($_POST['register']))
     $email    = $_POST['email'];
     $password = $_POST['password'];
 
-<<<<<<< HEAD
-    $sql = "INSERT INTO customer (name, phone, email, password)
-            VALUES ('$name', '$phone', '$email', '$password')";
-
-    if (mysqli_query($conn, $sql))
-    {
-        echo "<script>
-                alert('Registration Successful');
-                window.location='login.php';
-              </script>";
-    }
-    else
-    {
-        echo "<script>alert('Registration Failed');</script>";
-=======
     // Email validation
     if (!filter_var($email, FILTER_VALIDATE_EMAIL))
     {
@@ -74,7 +59,6 @@ if (isset($_POST['register']))
                     </script>";
             }
         }
->>>>>>> wan-nursakinah
     }
 }
 
@@ -89,15 +73,6 @@ if (isset($_POST['register']))
     <title>Customer Register - UTeM Cafeteria</title>
     <link rel="stylesheet" href="../css/sakinah.css">
 </head>
-<<<<<<< HEAD
-<body>
-
-<div class="navbar">
-    <div class="logo">
-        <h2>UTeM Campus Food Ordering System</h2>
-    </div>
-</div>
-=======
 
 <body>
 
@@ -110,18 +85,12 @@ if (isset($_POST['register']))
     </div>
 
     <div class="container">
->>>>>>> wan-nursakinah
 
         <h1>Customer Register</h1>
 
-<<<<<<< HEAD
-    <h1>Customer Register</h1>
-    <p class="subtitle">Create customer account before ordering</p>
-=======
         <p class="subtitle">Create customer account before ordering</p>
 
         <form method="POST">
->>>>>>> wan-nursakinah
 
             <div class="form-group">
                 <label>Customer Name</label>
@@ -154,13 +123,6 @@ if (isset($_POST['register']))
 
     </div>
 
-<<<<<<< HEAD
-</div>
-
-</body>
-</html>
-=======
 </body>
 
 </html>
->>>>>>> wan-nursakinah

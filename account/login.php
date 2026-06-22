@@ -8,26 +8,9 @@ if (isset($_POST['login']))
     $email    = $_POST['email'];
     $password = $_POST['password'];
 
-<<<<<<< HEAD
-    $sql    = "SELECT * FROM customer WHERE email='$email' AND password='$password'";
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) == 1)
-    {
-        $row = mysqli_fetch_assoc($result);
-
-        $_SESSION['customer_id']   = $row['customer_id'];
-        $_SESSION['customer_name'] = $row['name'];
-        $_SESSION['customer_email'] = $row['email'];
-        $_SESSION['customer_phone'] = $row['phone'];
-
-        header("Location: dashboard.php");
-        exit();
-=======
     if (!str_ends_with($email, "@student.utem.edu.my") && !str_ends_with($email, "@utem.edu.my"))
     {
         echo "<script>alert('Only UTeM email can login');</script>";
->>>>>>> wan-nursakinah
     }
     else
     {
@@ -100,15 +83,10 @@ if (isset($_POST['login']))
 
     </form>
 
-<<<<<<< HEAD
-    <p class="link-text">New customer? <a href="register.php">Register here</a></p>
-    <p class="link-text">Operator? <a href="../operator/operator-login.php">Login here</a></p>
-=======
     <p class="link-text">
         New customer?
         <a href="register.php">Register here</a>
     </p>
->>>>>>> wan-nursakinah
 
 </div>
 
