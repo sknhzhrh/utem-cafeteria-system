@@ -8,31 +8,38 @@ if (isset($_POST['login']))
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM customer
-            WHERE email='$email'";
-
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) == 1)
+    if (!str_ends_with($email, "@student.utem.edu.my") && !str_ends_with($email, "@utem.edu.my"))
     {
-        $row = mysqli_fetch_assoc($result);
+        echo "<script>alert('Only UTeM email can login');</script>";
+    }
+    else
+    {
+        $sql = "SELECT * FROM customer
+                WHERE email='$email'";
 
-        if (password_verify($password, $row['password']))
+        $result = mysqli_query($conn, $sql);
+
+        if (mysqli_num_rows($result) == 1)
         {
-            $_SESSION['customer_id'] = $row['customer_id'];
-            $_SESSION['customer_name'] = $row['name'];
+            $row = mysqli_fetch_assoc($result);
 
-            header("Location: dashboard.php");
-            exit();
+            if (password_verify($password, $row['password']))
+            {
+                $_SESSION['customer_id'] = $row['customer_id'];
+                $_SESSION['customer_name'] = $row['name'];
+
+                header("Location: dashboard.php");
+                exit();
+            }
+            else
+            {
+                echo "<script>alert('Invalid Email or Password');</script>";
+            }
         }
         else
         {
             echo "<script>alert('Invalid Email or Password');</script>";
         }
-    }
-    else
-    {
-        echo "<script>alert('Invalid Email or Password');</script>";
     }
 }
 

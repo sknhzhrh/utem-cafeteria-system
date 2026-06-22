@@ -17,6 +17,14 @@ if (isset($_POST['register']))
             </script>";
     }
 
+    // UTeM email validation
+    else if (!str_ends_with($email, "@student.utem.edu.my") && !str_ends_with($email, "@utem.edu.my"))
+    {
+        echo "<script>
+                alert('Only UTeM email can register');
+            </script>";
+    }
+
     // Password validation
     else if (strlen($password) < 8)
     {
