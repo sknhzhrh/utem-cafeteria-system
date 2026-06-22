@@ -1,47 +1,122 @@
 <?php
-
 session_start();
 include("../connect.php");
 
-if (!isset($_SESSION['customer_id']))
-{
+if (!isset($_SESSION['customer_id'])) {
     header("Location: ../account/login.php");
     exit();
 }
 
-// Initialize cart in session if not exists
-if (!isset($_SESSION['temp_cart']))
-{
-    $_SESSION['temp_cart'] = [];
+$customer_id = $_SESSION['customer_id'];
+$isEdit = false;
+$cartData = null;
+
+if (isset($_GET['cart_id'])) {
+    $isEdit = true;
+    $cart_id = $_GET['cart_id'];
+
+    $sqlCart = "SELECT cart.*, menu.name, menu.price, menu.category
+                FROM cart
+                INNER JOIN menu ON cart.menu_id = menu.menu_id
+                WHERE cart.cart_id='$cart_id' AND cart.customer_id='$customer_id'";
+    $resultCart = mysqli_query($conn, $sqlCart);
+
+    if (mysqli_num_rows($resultCart) == 0) {
+        echo "<script>alert('Cart item not found'); window.location.href='cart.php';</script>";
+        exit();
+    }
+
+    $cartData = mysqli_fetch_assoc($resultCart);
+    $menu_id = $cartData['menu_id'];
+
+    $food = [
+        "name" => $cartData['name'],
+        "price" => $cartData['price'],
+        "category" => $cartData['category']
+    ];
+} else {
+    if (!isset($_GET['menu_id'])) {
+        header("Location: menu.php");
+        exit();
+    }
+
+    $menu_id = $_GET['menu_id'];
+
+    $sql = "SELECT * FROM menu WHERE menu_id = '$menu_id'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) == 0) {
+        echo "<script>alert('Menu item not found'); window.location.href='menu.php';</script>";
+        exit();
+    }
+
+    $food = mysqli_fetch_assoc($result);
 }
 
-// Get menu_id from URL parameter
-$menu_id = isset($_GET['menu_id']) ? intval($_GET['menu_id']) : 0;
+$showFoodOptions = ($food['category'] == "Rice" || $food['category'] == "Noodles");
+$showDrinkOptions = ($food['category'] == "Drinks");
 
-if (!$menu_id)
-{
-    header("Location: menu.php");
-    exit();
+if (isset($_POST['add_cart'])) {
+    $spicy = isset($_POST['spicy']) ? $_POST['spicy'] : "";
+    $drink = isset($_POST['drink']) ? $_POST['drink'] : "";
+    $note = $_POST['note'];
+    $quantity = $_POST['quantity'];
+
+    $addons = isset($_POST['addons']) ? $_POST['addons'] : [];
+    $addons_text = implode(", ", $addons);
+
+    $subtotal = $food['price'] * $quantity;
+
+    if ($drink == "Cold (+RM0.50)") {
+        $subtotal += 0.50 * $quantity;
+    }
+
+    foreach ($addons as $addon) {
+        if ($addon == "Egg (+RM2)") {
+            $subtotal += 2.00 * $quantity;
+        }
+
+        if ($addon == "Chicken (+RM3)") {
+            $subtotal += 3.00 * $quantity;
+        }
+    }
+
+    $subtotal = number_format($subtotal, 2, '.', '');
+
+    if ($isEdit) {
+        $sqlCart = "UPDATE cart
+                    SET quantity='$quantity',
+                        spicy='$spicy',
+                        drink='$drink',
+                        addons='$addons_text',
+                        note='$note',
+                        subtotal='$subtotal'
+                    WHERE cart_id='$cart_id' AND customer_id='$customer_id'";
+    } else {
+        $sqlCart = "INSERT INTO cart 
+                    (customer_id, menu_id, quantity, spicy, drink, addons, note, subtotal)
+                    VALUES 
+                    ('$customer_id', '$menu_id', '$quantity', '$spicy', '$drink', '$addons_text', '$note', '$subtotal')";
+    }
+
+    if (mysqli_query($conn, $sqlCart)) {
+        echo "<script>alert('Cart updated successfully'); window.location.href='cart.php';</script>";
+    } else {
+        echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
+    }
 }
 
-// Fetch menu item from database
-$sql = "SELECT * FROM menu WHERE menu_id = $menu_id";
-$result = mysqli_query($conn, $sql);
-$menuItem = mysqli_fetch_assoc($result);
-
-if (!$menuItem)
-{
-    header("Location: menu.php");
-    exit();
-}
-
+$currentSpicy = $isEdit ? $cartData['spicy'] : "No Spicy";
+$currentDrink = $isEdit ? $cartData['drink'] : "Hot";
+$currentAddons = $isEdit ? explode(", ", $cartData['addons']) : [];
+$currentNote = $isEdit ? $cartData['note'] : "";
+$currentQuantity = $isEdit ? $cartData['quantity'] : 1;
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customize Order - UTeM Cafeteria</title>
     <link rel="stylesheet" href="../css/sakinah.css">
     <link rel="stylesheet" href="../css/custom.css">
@@ -52,117 +127,73 @@ if (!$menuItem)
 
 <div class="container">
 
-    <h1 id="foodName"></h1>
-    <p id="foodPrice" class="subtitle"></p>
+    <h1><?php echo $food['name']; ?></h1>
+    <p class="subtitle">Base Price: RM <?php echo number_format($food['price'], 2); ?></p>
 
-    <form id="customizeForm" method="POST" action="../api/add-to-cart.php">
-        <input type="hidden" name="menu_id" value="<?php echo (int)$menuItem['menu_id']; ?>">
-        <input type="hidden" name="name" value="<?php echo htmlspecialchars($menuItem['name']); ?>">
-        <input type="hidden" name="price" value="<?php echo (float)$menuItem['price']; ?>">
-        <input type="hidden" name="quantity" id="quantity" value="1">
-        <input type="hidden" name="subtotal" id="subtotal" value="<?php echo number_format($menuItem['price'], 2, '.', ''); ?>">
+    <form method="POST">
 
+        <?php if ($showFoodOptions): ?>
         <div class="form-group">
             <label>Spicy Level</label>
-            <select name="spicy" id="spicy">
-                <option value="No Spicy">No Spicy</option>
-                <option value="Mild">Mild</option>
-                <option value="Medium">Medium</option>
-                <option value="Hot">Hot</option>
+            <select name="spicy">
+                <option value="No Spicy" <?php if ($currentSpicy == "No Spicy") echo "selected"; ?>>No Spicy</option>
+                <option value="Mild" <?php if ($currentSpicy == "Mild") echo "selected"; ?>>Mild</option>
+                <option value="Medium" <?php if ($currentSpicy == "Medium") echo "selected"; ?>>Medium</option>
+                <option value="Hot" <?php if ($currentSpicy == "Hot") echo "selected"; ?>>Hot</option>
             </select>
         </div>
+        <?php endif; ?>
 
+        <?php if ($showDrinkOptions): ?>
         <div class="form-group">
             <label>Drink Temperature</label>
-            <select name="drink" id="drink">
-                <option value="Hot">Hot</option>
-                <option value="Cold (+RM0.50)">Cold (+RM0.50)</option>
+            <select name="drink">
+                <option value="Hot" <?php if ($currentDrink == "Hot") echo "selected"; ?>>Hot</option>
+                <option value="Cold (+RM0.50)" <?php if ($currentDrink == "Cold (+RM0.50)") echo "selected"; ?>>Cold (+RM0.50)</option>
             </select>
         </div>
+        <?php endif; ?>
 
+        <?php if ($showFoodOptions): ?>
         <div class="form-group">
             <label>Add-ons</label>
-            <div class="option"><label><input type="checkbox" name="addons[]" value="Egg (+RM2)"> Egg (+RM2.00)</label></div>
-            <div class="option"><label><input type="checkbox" name="addons[]" value="Chicken (+RM3)"> Chicken (+RM3.00)</label></div>
+
+            <div class="option">
+                <label>
+                    <input type="checkbox" name="addons[]" value="Egg (+RM2)" <?php if (in_array("Egg (+RM2)", $currentAddons)) echo "checked"; ?>>
+                    Egg (+RM2.00)
+                </label>
+            </div>
+
+            <div class="option">
+                <label>
+                    <input type="checkbox" name="addons[]" value="Chicken (+RM3)" <?php if (in_array("Chicken (+RM3)", $currentAddons)) echo "checked"; ?>>
+                    Chicken (+RM3.00)
+                </label>
+            </div>
         </div>
+        <?php endif; ?>
 
         <div class="form-group">
             <label>Special Note</label>
-            <textarea name="note" id="note" placeholder="Any special request..."></textarea>
+            <textarea name="note" placeholder="Any special request..."><?php echo $currentNote; ?></textarea>
         </div>
 
         <div class="form-group">
             <label>Quantity</label>
-            <div class="quantity">
-                <button type="button" class="qty-btn" onclick="minus()">-</button>
-                <span id="qty">1</span>
-                <button type="button" class="qty-btn" onclick="plus()">+</button>
-            </div>
+            <input type="number" name="quantity" value="<?php echo $currentQuantity; ?>" min="1" required>
         </div>
 
-        <button type="button" onclick="addToCart()">Add to Cart</button>
-        <br><br>
-        <a href="menu.php" class="btn">← Back to Menu</a>
+        <button type="submit" name="add_cart">
+            <?php echo $isEdit ? "Update Cart" : "Add to Cart"; ?>
+        </button>
+
     </form>
 
+    <br>
+    <a href="cart.php" class="btn">← Back to Cart</a>
+
 </div>
-
-<script>
-
-const food = {
-    menu_id: <?php echo (int)$menuItem['menu_id']; ?>,
-    name: "<?php echo htmlspecialchars($menuItem['name'], ENT_QUOTES); ?>",
-    price: <?php echo (float)$menuItem['price']; ?>
-};
-
-document.getElementById("foodName").innerText  = food.name;
-document.getElementById("foodPrice").innerText = "Base Price: RM " + parseFloat(food.price).toFixed(2);
-
-let qty = 1;
-
-function updateSubtotal()
-{
-    const drink = document.getElementById("drink").value;
-    const addons = Array.from(document.querySelectorAll("input[name='addons[]']:checked"));
-
-    let subtotal = food.price * qty;
-    if (drink.includes("Cold")) subtotal += 0.50 * qty;
-
-    addons.forEach(a => {
-        const match = a.value.match(/\+RM(\d+(?:\.\d+)?)/);
-        if (match) subtotal += parseFloat(match[1]) * qty;
-    });
-
-    document.getElementById("quantity").value = qty;
-    document.getElementById("subtotal").value = subtotal.toFixed(2);
-}
-
-function plus()
-{
-    qty++;
-    document.getElementById("qty").innerText = qty;
-    updateSubtotal();
-}
-
-function minus()
-{
-    if (qty > 1)
-    {
-        qty--;
-        document.getElementById("qty").innerText = qty;
-        updateSubtotal();
-    }
-}
-
-function addToCart()
-{
-    updateSubtotal();
-    document.getElementById("customizeForm").submit();
-}
-
-updateSubtotal();
-
-</script>
 
 </body>
 </html>

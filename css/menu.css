@@ -1,5 +1,3 @@
-/* ── MENU PAGE STYLES ── */
-
 .menu-wrapper {
     width: 90%;
     max-width: 1000px;
@@ -24,7 +22,6 @@
     margin: 0;
 }
 
-/* Search bar */
 .search-bar {
     display: flex;
     gap: 10px;
@@ -49,7 +46,6 @@
     color: #274472;
 }
 
-/* Category filter tabs */
 .category-tabs {
     display: flex;
     gap: 10px;
@@ -67,6 +63,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: 0.25s;
+    text-decoration: none;
 }
 
 .tab-btn:hover,
@@ -76,14 +73,12 @@
     border-color: #163B73;
 }
 
-/* Menu grid */
 .menu-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
 }
 
-/* Individual menu card */
 .menu-card {
     background: white;
     border-radius: 18px;
@@ -91,22 +86,12 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: 0.2s;
 }
 
 .menu-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 14px 35px rgba(0,0,0,0.15);
-}
-
-.menu-card-img {
-    width: 100%;
-    height: 140px;
-    background: #EEF1F4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 52px;
 }
 
 .menu-card-body {
@@ -150,7 +135,7 @@
     font-weight: bold;
     cursor: pointer;
     width: 100%;
-    transition: background 0.25s;
+    transition: 0.25s;
 }
 
 .add-to-cart-btn:hover {
@@ -158,7 +143,6 @@
     color: white;
 }
 
-/* No results */
 .no-results {
     grid-column: 1 / -1;
     text-align: center;
@@ -167,27 +151,14 @@
     font-size: 16px;
 }
 
-/* Toast notification */
-.toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #163B73;
-    color: white;
-    padding: 14px 22px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 14px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 999;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
+.menu-card-img {
+    width: 100%;
+    height: 140px;
+    background: #EEF1F4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
 }
 
 @media (max-width: 768px) {

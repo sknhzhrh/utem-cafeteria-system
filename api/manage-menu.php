@@ -3,100 +3,77 @@
 session_start();
 include("../connect.php");
 
+header("Content-Type: application/json");
+
 if (!isset($_SESSION['operator_id']))
 {
-    echo http_build_query([
-        'success' => '0',
-        'message' => 'Not authenticated'
-    ]);
+    echo json_encode(["success" => false, "message" => "Not authenticated"]);
     exit;
 }
 
-if (!isset($_POST['action']))
+$data = json_decode(file_get_contents("php://input"), true);
+
+if (!$data || !isset($data['action']))
 {
-    echo http_build_query([
-        'success' => '0',
-        'message' => 'Invalid request'
-    ]);
+    echo json_encode(["success" => false, "message" => "Invalid request"]);
     exit;
 }
 
-$action = $_POST['action'];
+$action = $data['action'];
 
-if ($action === 'add')
+if ($action === "add")
 {
-    $name = mysqli_real_escape_string($conn, $_POST['name'] ?? '');
-    $price = floatval($_POST['price'] ?? 0);
-    $category = mysqli_real_escape_string($conn, $_POST['category'] ?? '');
+    $name = mysqli_real_escape_string($conn, $data['name']);
+    $price = floatval($data['price']);
+    $category = mysqli_real_escape_string($conn, $data['category']);
     
     $sql = "INSERT INTO menu (name, price, category) VALUES ('$name', $price, '$category')";
     
     if (mysqli_query($conn, $sql))
     {
-        echo http_build_query([
-            'success' => '1',
-            'message' => 'Menu item added'
-        ]);
+        echo json_encode(["success" => true, "message" => "Menu item added"]);
     }
     else
     {
-        echo http_build_query([
-            'success' => '0',
-            'message' => 'Failed to add item'
-        ]);
+        echo json_encode(["success" => false, "message" => "Failed to add item"]);
     }
 }
-elseif ($action === 'update')
+elseif ($action === "update")
 {
-    $menu_id = intval($_POST['menu_id'] ?? 0);
-    $name = mysqli_real_escape_string($conn, $_POST['name'] ?? '');
-    $price = floatval($_POST['price'] ?? 0);
-    $category = mysqli_real_escape_string($conn, $_POST['category'] ?? '');
+    $menu_id = intval($data['menu_id']);
+    $name = mysqli_real_escape_string($conn, $data['name']);
+    $price = floatval($data['price']);
+    $category = mysqli_real_escape_string($conn, $data['category']);
     
     $sql = "UPDATE menu SET name='$name', price=$price, category='$category' WHERE menu_id=$menu_id";
     
     if (mysqli_query($conn, $sql))
     {
-        echo http_build_query([
-            'success' => '1',
-            'message' => 'Menu item updated'
-        ]);
+        echo json_encode(["success" => true, "message" => "Menu item updated"]);
     }
     else
     {
-        echo http_build_query([
-            'success' => '0',
-            'message' => 'Failed to update item'
-        ]);
+        echo json_encode(["success" => false, "message" => "Failed to update item"]);
     }
 }
-elseif ($action === 'delete')
+elseif ($action === "delete")
 {
-    $menu_id = intval($_POST['menu_id'] ?? 0);
+    $menu_id = intval($data['menu_id']);
     
     $sql = "DELETE FROM menu WHERE menu_id=$menu_id";
     
     if (mysqli_query($conn, $sql))
     {
-        echo http_build_query([
-            'success' => '1',
-            'message' => 'Menu item deleted'
-        ]);
+        echo json_encode(["success" => true, "message" => "Menu item deleted"]);
     }
     else
     {
-        echo http_build_query([
-            'success' => '0',
-            'message' => 'Failed to delete item'
-        ]);
+        echo json_encode(["success" => false, "message" => "Failed to delete item"]);
     }
 }
 else
 {
-    echo http_build_query([
-        'success' => '0',
-        'message' => 'Unknown action'
-    ]);
+    echo json_encode(["success" => false, "message" => "Unknown action"]);
 }
 
 ?>

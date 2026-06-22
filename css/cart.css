@@ -124,3 +124,19 @@ input[type="radio"], input[type="checkbox"]{
     color: #274472;
     margin: 0 10px;
 }
+
+.payment-option {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    margin: 12px 0 !important;
+    font-weight: 600;
+}
+
+.payment-option input[type="radio"] {
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+}

@@ -1,6 +1,6 @@
 <?php
+
 session_start();
-include("../connect.php");
 
 if (!isset($_SESSION['operator_id']))
 {
@@ -8,75 +8,13 @@ if (!isset($_SESSION['operator_id']))
     exit();
 }
 
-$editMode = false;
-$editItem = null;
-$message = "";
-
-/* ADD ITEM */
-if (isset($_POST['add']))
-{
-    $name = $_POST['name'];
-    $price = $_POST['price'];
-    $category = $_POST['category'];
-
-    if ($name != "" && $price != "" && $category != "")
-    {
-        $sql = "INSERT INTO menu (name, price, category) VALUES ('$name', '$price', '$category')";
-        mysqli_query($conn, $sql);
-
-        $message = "Item added successfully";
-    }
-}
-
-/* UPDATE ITEM */
-if (isset($_POST['update']))
-{
-    $menu_id = $_POST['menu_id'];
-    $name = $_POST['name'];
-    $price = $_POST['price'];
-    $category = $_POST['category'];
-
-    $sql = "UPDATE menu 
-            SET name='$name', price='$price', category='$category'
-            WHERE menu_id='$menu_id'";
-
-    mysqli_query($conn, $sql);
-
-    $message = "Item updated successfully";
-}
-
-/* DELETE ITEM */
-if (isset($_GET['delete']))
-{
-    $menu_id = $_GET['delete'];
-
-    $sql = "DELETE FROM menu WHERE menu_id='$menu_id'";
-    mysqli_query($conn, $sql);
-
-    header("Location: manage-menu.php");
-    exit();
-}
-
-/* EDIT ITEM */
-if (isset($_GET['edit']))
-{
-    $editMode = true;
-    $menu_id = $_GET['edit'];
-
-    $sqlEdit = "SELECT * FROM menu WHERE menu_id='$menu_id'";
-    $resultEdit = mysqli_query($conn, $sqlEdit);
-    $editItem = mysqli_fetch_assoc($resultEdit);
-}
-
-/* FETCH MENU */
-$sql = "SELECT * FROM menu ORDER BY category, name";
-$result = mysqli_query($conn, $sql);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Menu - UTeM Cafeteria</title>
     <link rel="stylesheet" href="../css/sakinah.css">
     <link rel="stylesheet" href="../css/manage-menu.css">
@@ -92,73 +30,38 @@ $result = mysqli_query($conn, $sql);
         <p>Add, edit and remove menu items from the cafeteria.</p>
     </div>
 
-    <?php if ($message != ""): ?>
-        <div class="alert alert-success">
-            <?php echo $message; ?>
-        </div>
-    <?php endif; ?>
+    <div class="alert alert-success" id="alertBox" style="display:none;"></div>
 
     <div class="form-card">
 
-        <h2>
-            <?php echo $editMode ? "Edit Menu Item" : "Add New Menu Item"; ?>
-        </h2>
+        <h2 id="formTitle">Add New Menu Item</h2>
 
-        <form method="POST">
-
-            <?php if ($editMode): ?>
-                <input type="hidden" name="menu_id" value="<?php echo $editItem['menu_id']; ?>">
-            <?php endif; ?>
-
-            <div class="form-row">
-
-                <div class="form-group">
-                    <label>Item Name</label>
-                    <input type="text" name="name" required
-                    value="<?php echo $editMode ? $editItem['name'] : ''; ?>">
-                </div>
-
-                <div class="form-group">
-                    <label>Price (RM)</label>
-                    <input type="number" name="price" step="0.01" min="0" required
-                    value="<?php echo $editMode ? $editItem['price'] : ''; ?>">
-                </div>
-
-                <div class="form-group">
-                    <label>Category</label>
-                    <select name="category" required>
-                        <option value="">-- Select Category --</option>
-
-                        <?php
-                        $categories = ["Rice", "Noodles", "Snacks", "Drinks", "Desserts"];
-
-                        foreach ($categories as $category)
-                        {
-                            $selected = "";
-
-                            if ($editMode && $editItem['category'] == $category)
-                            {
-                                $selected = "selected";
-                            }
-
-                            echo "<option value='$category' $selected>$category</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
+        <div class="form-row">
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="inputName" placeholder="e.g. Nasi Lemak">
             </div>
-
-            <div class="form-actions">
-                <?php if ($editMode): ?>
-                    <button type="submit" name="update">💾 Save Changes</button>
-                    <a href="manage-menu.php" class="btn-cancel">Cancel</a>
-                <?php else: ?>
-                    <button type="submit" name="add">+ Add Item</button>
-                <?php endif; ?>
+            <div class="form-group">
+                <label>Price (RM)</label>
+                <input type="number" id="inputPrice" placeholder="e.g. 4.50" step="0.01" min="0">
             </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="inputCategory">
+                    <option value="">-- Select Category --</option>
+                    <option value="Rice">Rice</option>
+                    <option value="Noodles">Noodles</option>
+                    <option value="Snacks">Snacks</option>
+                    <option value="Drinks">Drinks</option>
+                    <option value="Desserts">Desserts</option>
+                </select>
+            </div>
+        </div>
 
-        </form>
+        <div class="form-actions">
+            <button id="submitBtn" onclick="submitForm()">+ Add Item</button>
+            <a href="#" class="btn-cancel" id="cancelBtn" style="display:none;" onclick="cancelEdit()">Cancel</a>
+        </div>
 
     </div>
 
@@ -166,7 +69,7 @@ $result = mysqli_query($conn, $sql);
 
         <h2>Current Menu Items</h2>
 
-        <table class="report-table">
+        <table class="report-table" id="menuTable">
             <tr>
                 <th>#</th>
                 <th>Item Name</th>
@@ -174,52 +77,125 @@ $result = mysqli_query($conn, $sql);
                 <th>Price</th>
                 <th>Action</th>
             </tr>
-
-            <?php if (mysqli_num_rows($result) == 0): ?>
-
-                <tr>
-                    <td colspan="5" style="text-align:center; padding:20px; color:#888;">
-                        No menu items yet. Add one above.
-                    </td>
-                </tr>
-
-            <?php else: ?>
-
-                <?php $no = 1; ?>
-                <?php while ($row = mysqli_fetch_assoc($result)): ?>
-
-                    <tr>
-                        <td><?php echo $no++; ?></td>
-                        <td><?php echo $row['name']; ?></td>
-                        <td>
-                            <span class="category-badge category-<?php echo strtolower($row['category']); ?>">
-                                <?php echo $row['category']; ?>
-                            </span>
-                        </td>
-                        <td>RM <?php echo number_format($row['price'], 2); ?></td>
-                        <td class="action-buttons">
-                            <a href="manage-menu.php?edit=<?php echo $row['menu_id']; ?>" class="btn-edit">
-                                ✏️ Edit
-                            </a>
-
-                            <a href="manage-menu.php?delete=<?php echo $row['menu_id']; ?>"
-                               class="btn-delete"
-                               onclick="return confirm('Delete this item?');">
-                                🗑 Delete
-                            </a>
-                        </td>
-                    </tr>
-
-                <?php endwhile; ?>
-
-            <?php endif; ?>
-
         </table>
+
+        <p class="no-items" id="noItems" style="display:none;">No menu items yet. Add one above.</p>
 
     </div>
 
 </div>
 
+<script>
+
+let menuItems = [
+    { menu_id:1, name:"Nasi Lemak",  price:4.50, category:"Rice"    },
+    { menu_id:2, name:"Nasi Goreng", price:5.00, category:"Rice"    },
+    { menu_id:3, name:"Mee Goreng",  price:4.50, category:"Noodles" },
+    { menu_id:4, name:"Teh Tarik",   price:2.50, category:"Drinks"  },
+    { menu_id:5, name:"Roti Canai",  price:2.00, category:"Snacks"  },
+];
+
+let nextId = 6, editingId = null;
+
+function renderTable()
+{
+    const table   = document.getElementById("menuTable");
+    const noItems = document.getElementById("noItems");
+
+    while (table.rows.length > 1) table.deleteRow(1);
+
+    if (menuItems.length === 0) { noItems.style.display = "block"; return; }
+    noItems.style.display = "none";
+
+    menuItems.forEach((item, index) =>
+    {
+        const row = table.insertRow();
+        row.innerHTML =
+            `<td>${index + 1}</td>` +
+            `<td>${item.name}</td>` +
+            `<td><span class="category-badge category-${item.category.toLowerCase()}">${item.category}</span></td>` +
+            `<td>RM ${item.price.toFixed(2)}</td>` +
+            `<td class="action-buttons">
+                <a href="#" class="btn-edit" onclick="editItem(${item.menu_id})">✏️ Edit</a>
+                <button class="btn-delete" onclick="deleteItem(${item.menu_id})">🗑 Delete</button>
+            </td>`;
+    });
+}
+
+function submitForm()
+{
+    const name     = document.getElementById("inputName").value.trim();
+    const price    = parseFloat(document.getElementById("inputPrice").value);
+    const category = document.getElementById("inputCategory").value;
+
+    if (!name || isNaN(price) || price < 0 || !category) { alert("Please fill in all fields."); return; }
+
+    if (editingId !== null)
+    {
+        const item = menuItems.find(i => i.menu_id === editingId);
+        item.name = name; item.price = price; item.category = category;
+        showAlert("✓ Item updated successfully");
+        cancelEdit();
+    }
+    else
+    {
+        menuItems.push({ menu_id: nextId++, name, price, category });
+        showAlert("✓ Item added successfully");
+        clearForm();
+    }
+
+    renderTable();
+}
+
+function editItem(id)
+{
+    const item = menuItems.find(i => i.menu_id === id);
+    if (!item) return;
+    editingId = id;
+    document.getElementById("inputName").value         = item.name;
+    document.getElementById("inputPrice").value        = item.price;
+    document.getElementById("inputCategory").value     = item.category;
+    document.getElementById("formTitle").textContent   = "Edit Menu Item";
+    document.getElementById("submitBtn").textContent   = "💾 Save Changes";
+    document.getElementById("cancelBtn").style.display = "inline";
+    document.querySelector(".form-card").scrollIntoView({ behavior:"smooth" });
+}
+
+function cancelEdit()
+{
+    editingId = null; clearForm();
+    document.getElementById("formTitle").textContent   = "Add New Menu Item";
+    document.getElementById("submitBtn").textContent   = "+ Add Item";
+    document.getElementById("cancelBtn").style.display = "none";
+    return false;
+}
+
+function deleteItem(id)
+{
+    const item = menuItems.find(i => i.menu_id === id);
+    if (!item || !confirm("Delete " + item.name + "?")) return;
+    menuItems = menuItems.filter(i => i.menu_id !== id);
+    showAlert("✓ Item deleted");
+    renderTable();
+}
+
+function clearForm()
+{
+    document.getElementById("inputName").value     = "";
+    document.getElementById("inputPrice").value    = "";
+    document.getElementById("inputCategory").value = "";
+}
+
+function showAlert(msg)
+{
+    const box = document.getElementById("alertBox");
+    box.textContent = msg; box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 3000);
+}
+
+renderTable();
+
+</script>
+
 </body>
 </html>
-

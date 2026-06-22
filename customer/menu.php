@@ -9,23 +9,34 @@ if (!isset($_SESSION['customer_id']))
     exit();
 }
 
-// Fetch menu items from database
-$sql = "SELECT menu_id, name, price, category FROM menu ORDER BY category, name";
-$result = mysqli_query($conn, $sql);
-$menuItems = [];
-while ($row = mysqli_fetch_assoc($result))
+$search = "";
+$category = "All";
+
+if (isset($_GET['search']))
 {
-    $category = $row['category'];
-    $emojis = [
-        "Rice" => "🍛",
-        "Noodles" => "🍜",
-        "Snacks" => "🫓",
-        "Drinks" => "🧋",
-        "Desserts" => "🍧"
-    ];
-    $row['emoji'] = $emojis[$category] ?? "🍽️";
-    $menuItems[] = $row;
+    $search = mysqli_real_escape_string($conn, $_GET['search']);
 }
+
+if (isset($_GET['category']))
+{
+    $category = $_GET['category'];
+}
+
+$sql = "SELECT * FROM menu WHERE 1=1";
+
+if ($category != "All")
+{
+    $sql .= " AND category='$category'";
+}
+
+if (!empty($search))
+{
+    $sql .= " AND name LIKE '%$search%'";
+}
+
+$sql .= " ORDER BY category, name";
+
+$result = mysqli_query($conn, $sql);
 
 ?>
 
@@ -33,8 +44,8 @@ while ($row = mysqli_fetch_assoc($result))
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - UTeM Cafeteria</title>
+
     <link rel="stylesheet" href="../css/sakinah.css">
     <link rel="stylesheet" href="../css/menu.css">
 </head>
@@ -46,72 +57,101 @@ while ($row = mysqli_fetch_assoc($result))
 
     <div class="menu-header">
         <h1>Our Menu</h1>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search food or drinks..." oninput="filterMenu()">
-            <button onclick="filterMenu()">Search</button>
-        </div>
+
+        <form method="GET" class="search-bar">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search food or drinks..."
+                value="<?php echo htmlspecialchars($search); ?>">
+
+            <input type="hidden" name="category" value="<?php echo $category; ?>">
+
+            <button type="submit">Search</button>
+        </form>
     </div>
 
     <div class="category-tabs">
-        <button class="tab-btn active" onclick="setCategory('All', this)">All</button>
-        <button class="tab-btn" onclick="setCategory('Rice', this)">Rice</button>
-        <button class="tab-btn" onclick="setCategory('Noodles', this)">Noodles</button>
-        <button class="tab-btn" onclick="setCategory('Snacks', this)">Snacks</button>
-        <button class="tab-btn" onclick="setCategory('Drinks', this)">Drinks</button>
-        <button class="tab-btn" onclick="setCategory('Desserts', this)">Desserts</button>
+        <a href="?category=All" class="tab-btn <?php if($category=="All") echo "active"; ?>">All</a>
+        <a href="?category=Rice" class="tab-btn <?php if($category=="Rice") echo "active"; ?>">Rice</a>
+        <a href="?category=Noodles" class="tab-btn <?php if($category=="Noodles") echo "active"; ?>">Noodles</a>
+        <a href="?category=Snacks" class="tab-btn <?php if($category=="Snacks") echo "active"; ?>">Snacks</a>
+        <a href="?category=Drinks" class="tab-btn <?php if($category=="Drinks") echo "active"; ?>">Drinks</a>
+        <a href="?category=Desserts" class="tab-btn <?php if($category=="Desserts") echo "active"; ?>">Desserts</a>
     </div>
 
-    <div class="menu-grid" id="menuGrid">
-        <?php foreach ($menuItems as $item): ?>
-            <div class="menu-card" data-category="<?php echo htmlspecialchars($item['category']); ?>">
-                <div class="menu-card-img"><?php echo htmlspecialchars($item['emoji']); ?></div>
-                <div class="menu-card-body">
-                    <div class="menu-card-category"><?php echo htmlspecialchars($item['category']); ?></div>
-                    <div class="menu-card-name"><?php echo htmlspecialchars($item['name']); ?></div>
-                    <div class="menu-card-price">RM <?php echo number_format($item['price'], 2); ?></div>
-                    <button class="add-to-cart-btn" onclick="goCustomize(<?php echo (int)$item['menu_id']; ?>)">Customize & Add</button>
+    <div class="menu-grid">
+
+        <?php if (mysqli_num_rows($result) == 0): ?>
+
+            <div class="no-results">No items found.</div>
+
+        <?php else: ?>
+
+            <?php while ($row = mysqli_fetch_assoc($result)): ?>
+
+                <?php
+                    $emoji = "🍽️";
+
+                    if ($row['category'] == "Rice")
+                    {
+                        $emoji = "🍛";
+                    }
+                    elseif ($row['category'] == "Noodles")
+                    {
+                        $emoji = "🍜";
+                    }
+                    elseif ($row['category'] == "Snacks")
+                    {
+                        $emoji = "🫓";
+                    }
+                    elseif ($row['category'] == "Drinks")
+                    {
+                        $emoji = "🧋";
+                    }
+                    elseif ($row['category'] == "Desserts")
+                    {
+                        $emoji = "🍧";
+                    }
+                ?>
+
+                <div class="menu-card">
+
+                    <div class="menu-card-img">
+                        <?php echo $emoji; ?>
+                    </div>
+
+                    <div class="menu-card-body">
+
+                        <div class="menu-card-category">
+                            <?php echo $row['category']; ?>
+                        </div>
+
+                        <div class="menu-card-name">
+                            <?php echo $row['name']; ?>
+                        </div>
+
+                        <div class="menu-card-price">
+                            RM <?php echo number_format($row['price'], 2); ?>
+                        </div>
+
+                        <a href="customization.php?menu_id=<?php echo $row['menu_id']; ?>">
+                            <button class="add-to-cart-btn">
+                                Customize & Add
+                            </button>
+                        </a>
+
+                    </div>
+
                 </div>
-            </div>
-        <?php endforeach; ?>
+
+            <?php endwhile; ?>
+
+        <?php endif; ?>
+
     </div>
 
 </div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-
-let activeCategory = "All";
-
-function setCategory(category, btn)
-{
-    activeCategory = category;
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    filterMenu();
-}
-
-function filterMenu()
-{
-    const search = document.getElementById("searchInput").value.toLowerCase();
-    const cards = document.querySelectorAll(".menu-card");
-
-    cards.forEach(card =>
-    {
-        const category = card.getAttribute("data-category");
-        const name = card.querySelector(".menu-card-name").textContent.toLowerCase();
-        const matchesCategory = activeCategory === "All" || category === activeCategory;
-        const matchesSearch = name.includes(search);
-        card.style.display = matchesCategory && matchesSearch ? "" : "none";
-    });
-}
-
-function goCustomize(menuId)
-{
-    window.location.href = "customization.php?menu_id=" + menuId;
-}
-
-</script>
 
 </body>
 </html>

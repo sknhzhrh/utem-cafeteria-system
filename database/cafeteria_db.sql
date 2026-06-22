@@ -53,11 +53,43 @@ CREATE TABLE `customer` (
 --
 
 CREATE TABLE `menu` (
-  `menu_id` int(11) NOT NULL,
+  `menu_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `category` varchar(100) DEFAULT NULL,
-  `operator_id` int(11) DEFAULT NULL
+  `operator_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`menu_id`),
+  KEY `operator_id` (`operator_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `menu`
+--
+
+INSERT INTO `menu` (`name`, `price`, `category`, `operator_id`) VALUES
+('Nasi Lemak', 5.50, 'Rice', NULL),
+('Mee Goreng', 6.00, 'Noodles', NULL),
+('Teh Tarik', 2.50, 'Drinks', NULL),
+('Air Sirap', 2.00, 'Drinks', NULL),
+('Chicken Chop', 12.00, 'Rice', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE `cart` (
+  `cart_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `menu_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT '1',
+  `spicy` varchar(50) DEFAULT 'No Spicy',
+  `drink` varchar(50) DEFAULT NULL,
+  `addons` varchar(255) DEFAULT NULL,
+  `note` text,
+  `subtotal` decimal(10,2) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -122,9 +154,15 @@ ALTER TABLE `customer`
 --
 -- Indexes for table `menu`
 --
-ALTER TABLE `menu`
-  ADD PRIMARY KEY (`menu_id`),
-  ADD KEY `operator_id` (`operator_id`);
+-- operator_id already created inline in the menu table definition
+
+--
+-- Indexes for table `cart`
+--
+ALTER TABLE `cart`
+  ADD PRIMARY KEY (`cart_id`),
+  ADD KEY `customer_id` (`customer_id`),
+  ADD KEY `menu_id` (`menu_id`);
 
 --
 -- Indexes for table `orders`
@@ -171,6 +209,12 @@ ALTER TABLE `menu`
   MODIFY `menu_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `cart`
+--
+ALTER TABLE `cart`
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
@@ -191,6 +235,13 @@ ALTER TABLE `payment`
 --
 ALTER TABLE `menu`
   ADD CONSTRAINT `menu_ibfk_1` FOREIGN KEY (`operator_id`) REFERENCES `cafeteria_operator` (`operator_id`);
+
+--
+-- Constraints for table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`),
+  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`menu_id`);
 
 --
 -- Constraints for table `orders`
